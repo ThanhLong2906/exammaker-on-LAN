@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đề thi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .exam-list-container {
+            background: #252222; /* nền đen đặc */
+            max-width: 900px;
+            margin: 40px auto 80px; /* cách footer 80px */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .exam-item {
+            background: #004d00;
+            border-radius: 8px;
+            padding: 15px;
+            width: 200px; /* rộng đủ cho 4 cái trên 900px container */
+            box-sizing: border-box;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .exam-item strong {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .exam-item form {
+            margin-top: auto; /* đẩy nút xuống dưới */
+            width: 100%;
+        }
+
+        .exam-item button {
+            width: 100%;
+            padding: 8px;
+            background-color: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .exam-item button:hover {
+            background-color: orange;
+        }
+
+        .no-exams {
+            text-align: center;
+            font-style: italic;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo Quân đội">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<h3>Đồng chí: </h3>
+<h2>Danh sách đề thi</h2>
+<div class="exam-list-container">
+    {% if exams %}
+        {% for exam in exams %}
+        <div class="exam-item">
+            <strong>{{ exam[1] }}</strong>
+            <form method="POST" action="{{ url_for('do_exam', exam_id=exam[0], candidate_id=candidate_id) }}">
+                <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+                <button type="submit">Làm bài</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-exams">Chưa có đề thi nào.</p>
+    {% endif %}
+</div>
+<a href="{{ url_for('index') }}" class="back-link">← Quay lại</a>
+<footer>
+    Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395
+</footer>
+
+<script>
+    window.onload = function() {
+        document.body.style.opacity = "1";
+    };
+</script>
+
+</body>
+</html>

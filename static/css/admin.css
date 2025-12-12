@@ -1,0 +1,34 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('/static/img/Background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out; /* Hiệu ứng mờ dần khi tải */
+}
+header {
+    display: flex;
+    align-items: center;
+    background: #003200; /* màu xanh đậm đặc, không trong suốt */
+    padding: 10px 20px;
+}
+header img {
+    height: 80px; /* nhỏ lại */
+    margin-right: 15px;
+}
+header div {
+    color: yellow;
+}
+header h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: bold;
+}
+header p {
+    margin: 0;
+    font-size: 18px;
+    font-style: italic;
+    color: #ffcc00;
+}

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đề thi</title>
+    <style>
+        /* Background và font tương tự trang ngân hàng câu hỏi */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<h2 style="text-align:center; color:yellow; margin-top:20px;">Quản trị người dùng</h2>
+
+<div style="display:flex; margin-top:30px; gap:30px;">
+
+    <!-- ==================== CÂY ĐƠN VỊ (TRÁI) ==================== -->
+    <div style="width:30%; background:#002200; padding:20px; border-radius:10px; color:white; max-height:600px; overflow:auto;">
+        <h3 style="display:flex; justify-content:space-between; align-items:center;">
+            Đơn vị
+            <span onclick="openCreateUnitModal(null)"
+                style="cursor:pointer; color:yellow; font-size:22px;"
+                title="Thêm đơn vị lớn">➕</span>
+        </h3>
+
+        <ul id="unitTree" style="list-style:none; padding-left:0;">
+            {% macro render_unit(unit) %}
+            <li>
+                <span style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="unit-item" data-id="{{ unit.unit_id }}" style="cursor:pointer;">
+                    📁 {{ unit.unit_name }}
+                </span>
+                <span style="display:flex; gap:10px;">
+                <!-- nút tạo đơn vị con -->
+                <span onclick="openCreateUnitModal({{ unit.unit_id }})"
+                    style="cursor:pointer; color:lightgreen; font-size:20px; margin-left:8px;"
+                    title="Thêm đơn vị con">
+                    ➕
+                </span>
+                <!-- Nút xóa đơn vị -->
+                <span onclick="confirmDeleteUnit({{ unit.unit_id }}, '{{ unit.unit_name }}')"
+                    style="cursor:pointer; color:red; font-size:20px; margin-left:8px;"
+                    title="Xóa đơn vị">🗑</span>
+                </span>
+                </span>
+                {% if unit.children %}
+                <ul style="margin-left:20px; list-style:none;">
+                    {% for child in unit.children %}
+                        {{ render_unit(child) }}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+            {% endmacro %}
+
+            {% for u in units_tree %}
+                {{ render_unit(u) }}
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- ==================== DANH SÁCH USER (GIỮA) ==================== -->
+    <div style="flex:1; background:#002200; padding:20px; border-radius:10px; color:white;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="unitTitle">Chọn đơn vị để xem tài khoản</h3>
+
+            <div>
+                <a href="{{ url_for('create_user') }}" 
+                   class="btn btn-warning"
+                   style="margin-right:10px; font-weight:bold;">
+                    ➕ Tạo tài khoản quản trị
+                </a>
+
+                <a href="{{ url_for('create_user') }}"
+                   class="btn btn-success"
+                   style="font-weight:bold;">
+                    ➕ Tạo tài khoản người dùng
+                </a>
+            </div>
+        </div>
+
+        <hr style="border-color:#666;">
+
+        <table style="width:100%; color:white; border-collapse:collapse;">
+            <thead>
+                <tr style="background:#004400;">
+                    <th style="padding:8px;">ID</th>
+                    <th style="padding:8px;">Tên đăng nhập</th>
+                    <th style="padding:8px;">Quyền</th>
+                    <th style="padding:8px;">Trạng thái</th>
+                    <th style="padding:8px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="userList">
+                <tr><td colspan="3" style="text-align:center;"><i>Chưa có dữ liệu</i></td></tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+<br><a href="{{ url_for('admin_dashboard') }}" style="color:red">← Quay lại Trang quản trị</a>
+
+<!-- ====================== MODAL TẠO ĐƠN VỊ ====================== -->
+<div id="unitModal"
+     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; 
+            background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:2000;">
+    
+    <div style="background:#003300; padding:20px; border-radius:10px; width:350px; color:white;">
+
+        <h3 style="text-align:center; color:yellow;">Tạo đơn vị mới</h3>
+
+        <form id="unitForm">
+            <input type="hidden" name="parent_id" id="parent_id">
+
+            <label>Tên đơn vị:</label><br>
+            <input type="text" name="unit_name" id="unit_name" 
+                   required style="width:100%; padding:5px; margin-top:5px;"><br><br>
+
+            <button type="submit"
+                    style="width:100%; padding:8px; font-weight:bold;">
+                ✔ Tạo đơn vị
+            </button>
+        </form>
+
+        <div style="text-align:center; margin-top:10px;">
+            <button onclick="closeUnitModal()" 
+                    style="padding:5px 15px; background:gray; border:none; color:white;">
+                Hủy
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ==================== MODEL XÁC NHẬN XÓA ĐƠN VỊ ============= -->
+ <div id="deleteUnitModal"
+     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+            background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:3000;">
+    
+    <div style="background:#330000; padding:20px; border-radius:10px; width:350px; color:white;">
+        <h3 style="text-align:center; color:yellow;">Xác nhận xóa đơn vị</h3>
+
+        <p>Bạn có chắc muốn xóa đơn vị <b><span id="deleteUnitName"></span></b> không?</p>
+
+        <div style="text-align:right; margin-top:20px;">
+            <button onclick="closeDeleteUnitModal()" style="padding:6px 14px;">Hủy</button>
+            <button onclick="submitDeleteUnit()" style="padding:6px 14px; background:red; color:white; margin-left:10px;">
+                Xóa
+            </button>
+        </div>
+
+        <input type="hidden" id="deleteUnitId">
+    </div>
+</div>
+
+<!-- ==================== MODAL ĐỔI MẬT KHẨU ==================== -->
+<div id="passwordModal" 
+     style="
+        display:none; 
+        position:fixed; 
+        top:0; left:0; right:0; bottom:0;
+        background:rgba(0,0,0,0.6);
+        justify-content:center;
+        align-items:center;
+     ">
+    <div style="
+        background:#003300; 
+        padding:20px; 
+        border-radius:10px; 
+        width:350px;
+        color:white;
+    ">
+        <h3>Đổi mật khẩu cho <span id="pwUsername" style="color:yellow"></span></h3>
+
+        <input id="newPw" type="password" placeholder="Mật khẩu mới" 
+               style="width:100%; padding:8px; margin-top:10px;">
+
+        <input id="confirmPw" type="password" placeholder="Xác nhận mật khẩu" 
+               style="width:100%; padding:8px; margin-top:10px;">
+
+        <div style="margin-top:15px; text-align:right;">
+            <button onclick="closePasswordModal()" style="margin-right:10px;">Hủy</button>
+            <button onclick="submitPasswordChange()" style="background:yellow; color:black;">
+                Lưu
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+// API load user
+function loadUsers(unitId) {   
+    fetch(`/admin/get_users/${unitId}`)
+        .then(res => res.json())
+        .then(data => {
+            let html = "";
+            if (data.length === 0) {
+                html = `<tr><td colspan="3" style="text-align:center;"><i>Không có tài khoản nào</i></td></tr>`;
+            } else {
+                data.forEach(u => {
+                    html += `
+                        <tr style="background:#003300;">
+                            <td style="padding:8px;">${u.id}</td>
+                            <td style="padding:8px;">${u.username}</td>
+                            <td style="padding:8px;">${u.role}</td>
+                            <td style="padding:8px; color:${u.status === 'active' ? 'lightgreen' : 'red'};">
+                                ${u.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
+                            </td>
+                            <td style="padding:8px;">
+                                <button onclick="toggleStatus(${u.id}, '${u.status}')" 
+                                        style="padding:5px; cursor:pointer;">
+                                    ${u.status === 'active' ? 'Khóa' : 'Mở khóa'}
+                                </button>
+                                <button onclick="openPasswordModal(${u.id}, '${u.username}')">
+                                    🔑 Đổi mật khẩu
+                                </button>
+                                <button onclick="deleteUser(${u.id}, '${u.username}')" style="background:red; color:white;">
+                                    🗑 Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById("userList").innerHTML = html;
+        });
+    }
+// ========================== CLICK ĐƠN VỊ ==============================
+document.querySelectorAll(".unit-item").forEach(item => {
+    item.addEventListener("click", function () {
+        const unitId = this.dataset.id;
+        const unitName = this.textContent.trim();
+
+        // Highlight
+        document.querySelectorAll(".unit-item").forEach(el => el.style.color = "white");
+        this.style.color = "yellow";
+
+        // Hiển thị tên đơn vị
+        document.getElementById("unitTitle").innerText = "Tài khoản của đơn vị: " + unitName;
+        
+        // Lưu đơn vị đang chọn vào session
+        fetch("/admin/set_active_unit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ unit_id: unitId })
+        })
+        .then(res => res.json())
+        .then(resp => {
+        console.log("Saved unit:", resp);
+        })
+        .catch(err => console.error("Error saving unit:", err));
+
+    
+        sessionStorage.setItem("active_unit", unitId);
+        loadUsers(unitId);
+    });
+});
+
+// Mở modal - parentId = null => đơn vị lớn
+function openCreateUnitModal(parentId) {
+    document.getElementById("parent_id").value = parentId ?? "";
+    document.getElementById("unit_name").value = "";
+    document.getElementById("unitModal").style.display = "flex";
+}
+
+// Đóng modal
+function closeUnitModal() {
+    document.getElementById("unitModal").style.display = "none";
+}
+
+// Gửi đơn vị lên server
+document.getElementById("unitForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    fetch("/admin/create_unit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            unit_name: document.getElementById("unit_name").value,
+            parent_id: document.getElementById("parent_id").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+
+        if (data.success) {
+            location.reload();   // tải lại trang để thấy đơn vị mới
+        }
+    });
+});
+
+// Gọi API khóa/mở khóa
+function toggleStatus(userId, currentStatus) {
+    fetch("/admin/toggle_user_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, current_status: currentStatus })
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.status === "success") {
+            // reload lại đơn vị đang chọn
+            document.querySelector(".unit-item[style*='color: yellow']")?.click();
+        }
+    }); 
+}
+// =============================== XÓA ĐƠN VỊ ======================================
+// Mở modal xác nhận xóa đơn vị
+function confirmDeleteUnit(unitId, unitName) {
+    document.getElementById("deleteUnitId").value = unitId;
+    document.getElementById("deleteUnitName").innerText = unitName;
+    document.getElementById("deleteUnitModal").style.display = "flex";
+}
+
+// Đóng modal
+function closeDeleteUnitModal() {
+    document.getElementById("deleteUnitModal").style.display = "none";
+}
+
+// Gửi API xóa đơn vị
+function submitDeleteUnit() {
+    const id = document.getElementById("deleteUnitId").value;
+
+    fetch("/admin/delete_unit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ unit_id: id })
+    })
+    .then(res => res.json())
+    .then(resp => {
+        alert(resp.message);
+        if (resp.success) {
+            location.reload();   // Reload để cập nhật cây đơn vị
+        }
+    });
+}
+
+// =============================== ĐỔI MẬT KHẨU ==========================================
+let currentUserId = null;
+
+// Mở modal
+function openPasswordModal(userId, username) {
+    currentUserId = userId;
+    document.getElementById("pwUsername").innerText = username;
+    document.getElementById("newPw").value = "";
+    document.getElementById("confirmPw").value = "";
+    document.getElementById("passwordModal").style.display = "flex";
+}
+
+// Đóng modal
+function closePasswordModal() {
+    document.getElementById("passwordModal").style.display = "none";
+}
+
+// Gửi yêu cầu đổi mật khẩu
+function submitPasswordChange() {
+    const pw = document.getElementById("newPw").value.trim();
+    const confirm = document.getElementById("confirmPw").value.trim();
+
+    // if (pw.length < 4) {
+    //     alert("Mật khẩu phải dài ít nhất 4 ký tự!");
+    //     return;
+    // }
+    if (pw !== confirm) {
+        alert("Mật khẩu xác nhận không khớp!");
+        return;
+    }
+
+    fetch("/admin/change_password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: currentUserId, password: pw })
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.status === "success") {
+            alert("Đổi mật khẩu thành công!");
+            closePasswordModal();
+        } else {
+            alert("Lỗi: " + resp.message);
+        }
+    });
+}
+
+// ============================ XÓA TÀI KHOẢN ===============================
+function deleteUser(userId, username) {
+    if (!confirm(`Bạn có chắc muốn xóa tài khoản "${username}"?`)) {
+        return;
+    }
+
+    fetch("/admin/delete_user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId })
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.status === "success") {
+            alert("Đã xóa tài khoản!");
+            // // Tải lại danh sách tài khoản của đơn vị đang chọn
+            // const activeUnit = sessionStorage.getItem("active_unit");
+            // if (activeUnit) loadUsers(activeUnit);
+
+            // 🔥 Lấy lại đơn vị đang chọn (đã lưu khi click)
+            const unitId = sessionStorage.getItem("active_unit");
+
+            // 🔥 Tải lại danh sách tài khoản
+            if (unitId) loadUsers(unitId);
+        } else {
+            alert("Lỗi: " + resp.message);
+        }
+    })
+    .catch(err => console.error("Lỗi xóa user:", err));
+}
+</script>
+
+<footer>
+    © Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.
+</footer>
+
+</body>
+</html>

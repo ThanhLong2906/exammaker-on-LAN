@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Quản trị</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_login.css') }}">
+    <style>
+      /* Toàn bộ màn hình nền */
+      body {
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          font-family: 'Segoe UI', sans-serif;
+          background: url('/static/img/Background.jpg') no-repeat center center fixed;
+          background-size: cover;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        background: #003200;
+        padding: 10px 20px;
+        border-bottom: 3px solid yellow;
+        width: 100%;
+      }
+      header img {
+          height: 80px;
+          margin-right: 15px;
+      }
+      header div {
+          color: yellow;
+      }
+      header h1 {
+          margin: 0;
+          font-size: 25px;
+          font-weight: bold;
+      }
+      header p {
+          margin: 0;
+          font-size: 18px;
+          font-style: italic;
+          color: #ffcc00;
+      }
+
+      footer {
+          background: #003200;
+          text-align: center;
+          padding: 10px;
+          color: #ccc;
+          font-size: 14px;
+          border-top: 3px solid yellow;
+          position: fixed;
+          bottom: 0;
+          width: 100%;
+      }
+       main {
+            flex: 1;
+            max-width: 900px;
+            margin: 80px auto 80px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        main h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+      /* Lớp phủ mờ giúp dễ nhìn form hơn */
+      .login-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+
+      /* Hộp login */
+      .login-box {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(5px);
+          border-radius: 16px;
+          padding: 40px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          text-align: center;
+          width: 340px;
+          color: white;
+      }
+
+      .login-box h2 {
+          margin-bottom: 20px;
+          font-size: 24px;
+      }
+
+      /* Input form */
+      .login-box input {
+          width: 100%;
+          padding: 12px 3px;
+          margin: 10px 0;
+          border: none;
+          border-radius: 8px;
+          outline: none;
+          font-size: 15px;
+      }
+
+      /* Nút đăng nhập */
+      .login-box button {
+          width: 102%;
+          padding: 14px;
+          background-color:#f1da0a;
+          border: none;
+          border-radius: 8px;
+          color: rgb(235, 9, 9);
+          font-weight: bold;
+          cursor: pointer;
+          transition: background 0.3s ease;
+      }
+
+      .login-box button:hover {
+          background-color:#00ff66;
+      }
+
+      /* Thông báo lỗi */
+      .error {
+          color: #f1da0a;
+          background: rgba(255, 0, 0, 0.3);
+          padding: 8px;
+          border-radius: 6px;
+          margin-bottom: 10px;
+      }
+
+      /* Hiệu ứng đổi màu liên tục cho tiêu đề */
+      .animated-title {
+          font-size: 26px;
+          font-weight: 700;
+          background: linear-gradient(270deg, #00ffff, #ff00ff, #ff9900, #00ff66);
+          background-size: 800% 800%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: gradientColor 8s ease infinite;
+      }
+
+      /* Keyframes tạo chuyển động gradient */
+      @keyframes gradientColor {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+      }
+
+    /* Dòng chữ chạy bên dưới tiêu đề */
+    .scrolling-text {
+        position: relative;
+        margin-top: 14px;
+        height: 28px; /* Tăng chiều cao khung để không bị cắt chữ */
+        line-height: 28px; /* Căn giữa chữ theo chiều dọc */
+        font-size: 18px; /* Chữ to hơn rõ ràng hơn */
+        font-weight: 600;
+        overflow: hidden;
+        box-sizing: border-box;
+        font-size: 15px;
+        color: #ec0707;
+        text-shadow: 0 0 5px #f6f9fc;
+        animation: scrollText 18s linear infinite;
+    }
+
+    /* Hiệu ứng chạy từ trái sang phải */
+    @keyframes scrollText {
+        0% {
+            transform: translateX(230%);
+        }
+        100% {
+            transform: translateX(-230%);
+        }
+    }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/static/img/LOGO_f395.png" alt="Logo">
+        <div>
+            <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+            <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+        </div>
+    </header>
+    <div class="scrolling-text">
+    🔒 Chào mừng bạn đến với hệ thống quản trị! Vui lòng đăng nhập để tiếp tục. 🔑
+    </div>
+    <div class="login-container">
+        <div class="login-box">
+            <h2 class="animated-title">Đăng nhập Quản trị</h2>
+
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <input type="text" name="username" placeholder="Tên đăng nhập" required>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+                <button  type="submit" >Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+    <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm câu hỏi vào đề thi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        main {
+            background: rgba(56, 53, 53, 0.644);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 100px; /* tránh header */
+            color: white;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            color: #ffcc00;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        /* Container mỗi câu hỏi để căn theo hàng dọc */
+        .question-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #666; /* Đường gạch phân cách */
+        }
+        .question-label {
+            flex: 1 1 auto;
+        }
+        .score-input {
+            width: 60px;
+            padding: 3px 5px;
+            border-radius: 5px;
+            border: none;
+            font-weight: normal;
+        }
+        .remove-link {
+            color: #ffcc00;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .remove-link:hover {
+            text-decoration: underline;
+            color: #ffff66;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #004999;
+        }
+
+        a.back-link {
+            color: #ffcc00;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+
+        p.message {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        p.message.success {
+            color: #7fff00;
+        }
+        p.message.error {
+            color: #ff4444;
+        }
+
+        /* Form update thời gian: căn thẳng hàng */
+        .update-time-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .update-time-form label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .update-time-form input[type="number"] {
+            width: 60px;
+            padding: 3px 5px;
+            border-radius: 5px;
+            border: none;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<main>
+    <h2>Đề thi: {{ exam[1] }}</h2>
+
+    <form method="POST" action="{{ url_for('update_time', exam_id = exam[0]) }}" class="update-time-form">
+        <label for="duration_minutes">Thời gian:</label>
+        <input type="number" id="duration_minutes" value="{{ exam[2] }}" name="duration_minutes" min="1" required> phút
+        <button type="submit" title="Lưu thời gian">💾</button>
+    </form>
+
+    <h3>Thêm câu hỏi từ ngân hàng</h3>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p class="message {{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        {% for question in questions %}
+            <div class="question-row">
+                <input type="checkbox" name="question_ids" value="{{ question[0] }}" id="q{{ question[0] }}">
+                <label class="question-label" for="q{{ question[0] }}">{{ question[1] }}</label>
+                <label>Điểm:</label>
+                <input class="score-input" type="number" name="scores" min="1" max="100" value="1" required>
+            </div>
+        {% endfor %}
+        <button type="submit">Thêm vào đề thi</button>
+    </form>
+
+    <h3>Câu hỏi đã có trong đề thi</h3>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p class="message {{ 'success' if category == 'success' else 'error' }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{url_for('update_assigned_questions', exam_id = exam[0])}}">
+        {% for question in assigned_questions %}
+            <div class="question-row">
+                <label class="question-label" for="q{{ question[0] }}">{{ question[1] }}</label>
+                <label>Điểm:</label>
+                <input class="score-input" type="number" name="score_{{ question[0] }}" min="1" max="100" value="{{ question[2] }}" required>
+                <a href="{{ url_for('remove_question_from_exam', exam_id=exam[0], question_id=question[0]) }}" 
+                   class="remove-link"
+                   onclick="return confirm('Bạn có chắc muốn xóa câu hỏi này khỏi đề thi?')">
+                    Xóa
+                </a>
+            </div>
+        {% endfor %}
+        <button type="submit">Lưu thay đổi</button>
+    </form>
+
+    <hr>
+
+    <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+</main>
+
+<footer>
+    © Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.
+</footer>
+
+</body>
+</html>

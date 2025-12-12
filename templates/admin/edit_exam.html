@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa đề thi</title>
+    <style>
+            /* Giữ background, header, footer y hệt trang thêm câu hỏi */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 60px auto 60px;
+                max-width: 1200px;
+                background: url('/static/img/Background.jpg') no-repeat center center fixed;
+                background-size: cover;
+                color: white;
+                min-height: 100vh;
+                position: relative;
+            }
+
+            header {
+                display: flex;
+                align-items: center;
+                background: #003200;
+                padding: 10px 20px;
+                border-bottom: 3px solid yellow;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+            header img {
+                height: 80px;
+                margin-right: 15px;
+            }
+            header div {
+                color: yellow;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 25px;
+                font-weight: bold;
+            }
+            header p {
+                margin: 0;
+                font-size: 18px;
+                font-style: italic;
+                color: #ffcc00;
+            }
+
+            footer {
+                background: #003200;
+                text-align: center;
+                padding: 10px;
+                color: #ccc;
+                font-size: 14px;
+                border-top: 3px solid yellow;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+
+            main {
+                max-width: 1200px;
+                margin: 90px auto 60px;
+                padding: 20px;
+                background: rgba(38, 63, 7, 0.9); /* màu xanh nõn chuối đậm đặc */
+                border-radius: 10px;
+                color: yellow;
+            }
+
+            h2 {
+                text-align: center;
+                color: yellow;
+                margin-bottom: 20px;
+            }
+
+            form label, form input, form button {
+                font-size: 16px;
+            }
+
+            form input[type="text"], form input[type="number"] {
+                padding: 6px 10px;
+                border-radius: 5px;
+                border: none;
+                margin-top: 5px;
+                margin-bottom: 15px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            form button {
+                background: #006600;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: background 0.3s;
+                display: block;
+                margin: 20px auto 0 auto;
+                width: 150px;
+            }
+            form button:hover {
+                background: #004400;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                color: yellow;
+            }
+
+            table, th, td {
+                border: 1px solid yellow;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: left;
+                vertical-align: middle;
+            }
+
+            th {
+                background: #224400;
+                color: yellow;
+            }
+
+            td input[type="checkbox"] {
+                transform: scale(1.3);
+                margin-left: 10px;
+                cursor: pointer;
+            }
+
+            td input[type="number"] {
+                width: 80px;
+                padding: 5px;
+                border-radius: 5px;
+                border: none;
+                color: black;
+                font-weight: bold;
+            }
+
+            /* Link quay lại */
+            .back-link {
+                display: block;
+                margin-top: 30px;
+                color:crimson;
+                text-align: center;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .back-link:hover {
+                text-decoration: underline;
+            }
+        </style>
+</head>
+<body>
+        <header>
+            <img src="/static/img/LOGO_f395.png" alt="Logo">
+            <div>
+                <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+                <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+            </div>
+        </header>
+    <h2>Sửa đề thi</h2>
+
+    <form method="POST">
+        <label for="title">Tiêu đề:</label><br>
+        <input type="text" id="title" name="title" value="{{ exam[1] }}" required><br><br>
+
+        <label for="duration">Thời gian làm bài (phút):</label><br>
+        <input type="number" id="duration" name="duration" value="{{ exam[2] }}" min="1" required><br><br>
+
+        <button type="submit">Cập nhật</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+    <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+</body>
+</html>

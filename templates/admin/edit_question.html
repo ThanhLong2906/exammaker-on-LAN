@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa câu hỏi</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .form-container {
+            background: rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 1000px;
+            margin: 130px auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            color: #ffcc00;
+        }
+        label {
+            display:inline-block;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 15spx;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            max-width: 1200px;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        button {
+            background: green;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .title {
+            color: #ffcc00;
+            text-align: left;
+        } 
+        h2 {
+            margin-top: 20;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+<div class="form-container">
+    <h2 style="text-align: center;">Chỉnh sửa câu hỏi</h2>
+    <form method="post">
+        <label>Nội dung câu hỏi:</label><br>
+        <textarea name="content" required rows="3">{{ question[1] }}</textarea><br>
+
+        <label>A:</label><br>
+        <input type="text" name="a" value="{{ question[2] }}" required><br>
+        <label>B:</label><br>
+        <input type="text" name="b" value="{{ question[3] }}" required><br>
+        <label>C:</label><br>
+        <input type="text" name="c" value="{{ question[4] }}" required><br>
+        <label>D:</label><br>
+        <input type="text" name="d" value="{{ question[5] }}" required><br>
+
+        <label>Đáp án đúng:</label><br>
+        <select name="correct" required>
+            {% for opt in ['A', 'B', 'C', 'D'] %}
+                <option value="{{ opt }}" {% if question[6] == opt %}selected{% endif %}>{{ opt }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Lưu thay đổi</button>
+        <a href="{{ url_for('admin_questions') }}">
+            <button style="background-color:grey;">Hủy</button></a>
+    </form>
+</div>
+
+    <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+</body>
+</html>

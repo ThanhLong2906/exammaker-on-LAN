@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo cuộc thi</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1000px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+        }
+
+        header img {
+            height: 80px;
+            margin-right: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+            color: yellow;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 17px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        .container {
+            margin-top: 120px;
+            background: rgba(0, 40, 0, 0.85);
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            background: yellow;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #ffdd33;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<div class="container">
+    <h2 style="text-align:center; color:yellow;">Tạo cuộc thi mới</h2>
+
+    <form method="POST">
+        <label>Tên cuộc thi:</label>
+        <input type="text" name="title" required>
+
+        <label>Mô tả:</label>
+        <textarea name="description" rows="3"></textarea>
+
+        <label>Ngày bắt đầu:</label>
+        <input type="date" name="start_date" required>
+
+        <label>Ngày kết thúc:</label>
+        <input type="date" name="end_date" required>
+
+        <button type="submit">✔ Tạo cuộc thi</button>
+    </form>
+</div>
+
+<footer>
+    © Hệ thống thi trắc nghiệm – Ban Thông tin – Sư đoàn 395
+</footer>
+
+</body>
+</html>

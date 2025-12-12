@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Trang quản trị</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        main {
+            flex: 1;
+            max-width: 900px;
+            margin: 80px auto 80px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        main h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .admin-item {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(21, 216, 21, 0.9);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0, 100, 0, 0.6);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            text-decoration: none;
+            user-select: none;
+        }
+        .admin-item:hover {
+            box-shadow: 0 0 20px rgba(233, 219, 30, 0.9);
+            transform: translateY(-3px);
+            color: #ccff33;
+        }
+        
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<main>
+    <h2>Quản trị hệ thống thi</h2>
+
+    <a href="/admin/questions" class="admin-item">Quản lý ngân hàng câu hỏi</a>
+    <a href="/admin/exams/list" class="admin-item">Danh sách đề thi</a>
+    <a href="/admin/exams" class="admin-item">Tạo đề thi</a>
+    <a href="/admin/competitions" class="admin-item">Quản lý cuộc thi</a>
+    <a href="/admin/results" class="admin-item">Xem kết quả thi</a>
+    <a href="/admin/change_password_admin" class="admin-item">Đổi mật khẩu</a>
+    <!-- <a href="/admin/create_user" class="admin-item">Tạo tài khoản quản trị</a> -->
+    <!-- <a href="/admin/..." class="admin-item">Tạo tài thí sinh</a> -->
+    <!-- <a href="/admin/units" class="admin-item">Tạo đơn vị</a> -->
+    <a href="/admin/user_management" class="admin-item">Quản trị người dùng</a>
+    <div style="text-align:right; margin: 10px;">
+        <a href="{{ url_for('admin_logout') }}"
+            style="background:#f33; color:#fff; padding:8px 12px; border-radius:5px; text-decoration:none;">
+            Đăng xuất</a>
+    </div>
+</main>
+
+<footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+
+</body>
+</html>

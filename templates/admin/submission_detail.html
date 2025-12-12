@@ -1,0 +1,168 @@
+
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <title>Chi tiết bài thi</title>
+        <style>
+            body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 90px auto 60px; /* tạo khoảng cách trên dưới cho header và footer */
+            padding: 20px;
+            background: rgba(38, 63, 7, 0.9); /* màu xanh nõn chuối đậm đặc */
+            border-radius: 10px;
+            color: rgb(252, 4, 4);
+            text-align: left;
+        }
+            h2 { color: yellow; text-align: left; }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                background-color: #9acd32;
+                color: black;
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+            }
+            th { background: #6b8e23; color: white; }
+            .correct { background: lightgreen; }
+            .wrong { background: rgb(138, 225, 238); }
+            a.back-link {
+                display: inline-block;
+                margin-top: 20px;
+                color: yellow;
+                text-decoration: none;
+            }
+
+        
+        </style>
+    </head>
+    <body>
+        <!-- <header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header> -->
+        <main>
+            <h2>Chi tiết bài thi</h2>
+
+            <p><b>Thí sinh:</b> {{ submission[3] }} ({{ submission[4] }} - {{ submission[5] }})</p>
+            <p><b>Đề thi:</b> {{ submission[6] }}</p>
+            <p><b>Thời gian nộp:</b> {{ submission[1] }}</p>
+            <p><b>Điểm tổng:</b> {{ submission[2] }}</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>TT</th>
+                        <th>Câu hỏi</th>
+                        <th>Đáp án A</th>
+                        <th>Đáp án B</th>
+                        <th>Đáp án C</th>
+                        <th>Đáp án D</th>
+                        <th>Đáp án đúng</th>
+                        <th>Đã chọn</th>
+                        <th>Điểm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in answers %}
+                    <tr class="{% if a.is_correct %}correct{% else %}wrong{% endif %}">
+                        <td>{{loop.index}} </td>
+                        <td>{{ a[0] }}</td>
+                        <td>{{ a[1] }}</td>
+                        <td>{{ a[2] }}</td>
+                        <td>{{ a[3] }}</td>
+                        <td>{{ a[4] }}</td>
+                        <td>{{ a[5] }}</td>
+                        <td>{{ a[6] }}</td>
+                        <td>{{ a[8] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="no-print" style="margin-top:20px; text-align:center;">
+    <!-- Nút in -->
+    <button onclick="window.print()" 
+            style="padding:8px 15px; margin-right:10px; background:#6b8e23; color:white; border:none; border-radius:5px; cursor:pointer;">
+        🖨 In kết quả
+    </button>
+
+    <!-- Nút xuất Excel -->
+    <a href="{{ url_for('export_submission_excel', submission_id=submission[0]) }}"
+       style="padding:8px 15px; background:#1e90ff; color:white; text-decoration:none; border-radius:5px;">
+        ⬇ Xuất Excel
+    </a>
+</div>
+
+
+            <a href="{{ url_for('admin_results') }}" class="back-link">← Quay lại danh sách kết quả</a>
+        </main>
+        <script>
+            if (a[6] == null) {
+                a[6] = "Khong chon"
+            }
+        </script>
+    <!-- <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer> -->
+    </body>
+    </html>

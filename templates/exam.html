@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <title>Làm bài thi</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                background: url('/static/img/Background.jpg') no-repeat center center fixed;
+                background-size: cover;
+                color: white;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding-top: 80px; /* chỉnh theo chiều cao header của bạn */
+            }
+
+            header {
+                display: flex;
+                align-items: center;
+                background: #003200;
+                padding: 10px 20px;
+                border-bottom: 3px solid yellow;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 1000;
+            }
+            header img {
+                height: 80px;
+                margin-right: 15px;
+            }
+            header div {
+                color: yellow;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 25px;
+                font-weight: bold;
+            }
+            header p {
+                margin: 0;
+                font-size: 18px;
+                font-style: italic;
+                color: #ffcc00;
+            }
+
+            footer {
+                background: #003200;
+                text-align: center;
+                padding: 10px;
+                color: #ccc;
+                font-size: 14px;
+                border-top: 3px solid yellow;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+
+            main {
+                display: flex;
+                flex: 1;
+                padding: 20px;
+                max-width: 1200px;
+                margin: 60px auto 60px; /* trên dưới để tránh header/footer */
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            /* Left content area - questions */
+            .questions-container {
+                flex: 3; /* rộng hơn */
+                margin-right: 20px;
+                overflow-y: auto;
+                height: calc(100vh - 250px); 
+                max-height: calc(100vh - 140px);
+                color: black;
+                width: 900; /* tăng chiều rộng lên */
+                max-width: 1000px; /* có thể để lớn hơn nếu muốn*/
+                margin: 0 auto; /* căn giữa nếu cần */
+                padding: 20px;
+                background: rgba(51, 48, 48, 0.95); /* giữ đậm đặc */
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                font-size: 18px; /* chữ to hơn */
+                position: fixed;
+                top: 120px; /* dưới header */
+                left: 50px; /* sát lề trái */
+            }
+
+            .question {
+                margin-bottom: 25px;
+                padding: 15px;
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            }
+
+            .score {
+                font-weight: bold;
+                color: #006600;
+                margin-top: 5px;
+            }
+
+            /* Right sidebar - timer and question navigation stacked */
+            .right-sidebar {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 150px; /* chiều rộng cố định cho đồng hồ + danh sách */
+                gap: 15px;
+                max-height: calc(100vh - 140px);
+                overflow-y: auto;
+                color: yellow;
+                position: fixed;
+                top: 120px; /* dưới header */
+                right: 50px; /* sát lề phải */
+        
+            }
+
+            #timer-container {
+                background: #330000;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 20px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 0 10px red;
+                user-select: none;
+                animation: blink 1.5s infinite;
+            }
+
+            @keyframes blink {
+                0%, 100% { color: red; }
+                50% { color: #f59595; }
+            }
+
+            .sidebar {
+                background: rgba(0, 50, 0, 0.9);
+                border-radius: 10px;
+                padding: 15px;
+                width: 100%;
+            }
+
+            .question-nav button.answered {
+                background: yellow !important;
+                color: black !important;
+            }
+
+
+            .sidebar h3 {
+                margin-top: 0;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            .question-nav {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .question-nav button {
+                background: #004d00;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                padding: 10px 0;
+                cursor: pointer;
+                transition: background 0.3s;
+                width: 100%;
+            }
+
+            .question-nav button:hover {
+                background: #007700;
+            }
+
+            .question-nav button.flagged {
+                background: orange !important;
+                color: black !important;
+                border: 2px solid red;
+            }
+
+
+            /* Submit button */
+            .submit-btn {
+                padding: 12px 25px;
+                font-size: 16px;
+                background: #0066cc;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.3s;
+                margin-top: 10px;
+                display: block;
+                width: 100%;
+            }
+            .submit-btn:hover {
+                background: #004999;
+            }
+
+            /* Scrollbar */
+            .questions-container::-webkit-scrollbar,
+            .right-sidebar::-webkit-scrollbar {
+                width: 8px;
+            }
+            .questions-container::-webkit-scrollbar-thumb,
+            .right-sidebar::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <header>
+            <img src="/static/img/LOGO_f395.png" alt="Logo">
+            <div>
+                <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+                <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+            </div>
+        </header>
+
+        <main>
+            <form id="examForm" method="POST" action="{{ url_for('submit_exam', candidate_name=candidate_name) }}" class="questions-container">
+                <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+                <input type="hidden" name="exam_id" value="{{ exam_id }}">
+
+                {% for question in questions %}
+                <div class="question" id="q{{ loop.index }}">
+                    <p><strong>Câu {{ loop.index }}:</strong> {{ question[1] }}</p>
+                    <div class="score">Điểm: {{ question[9] }}</div>
+                    <label><input type="radio" name="q{{ question[0] }}" value="A"> A. {{ question[2] }}</label><br>
+                    <label><input type="radio" name="q{{ question[0] }}" value="B"> B. {{ question[3] }}</label><br>
+                    <label><input type="radio" name="q{{ question[0] }}" value="C"> C. {{ question[4] }}</label><br>
+                    <label><input type="radio" name="q{{ question[0] }}" value="D"> D. {{ question[5] }}</label><br>
+
+                    <!-- Nút đánh dấu -->
+                    <button type="button" class="mark-btn" data-target="q{{ loop.index }}"><a7>Đánh dấu câu này</a7></button>
+                </div>
+
+                {% endfor %}
+                <button class="submit-btn" type="submit" translate="no">Nộp bài</button>
+            </form>
+
+            <div class="right-sidebar">
+                <div id="timer-container">
+                    Thời gian còn lại: <span id="timer">--:--</span>
+                </div>
+                <div class="sidebar">
+                    <h3>Danh sách câu hỏi</h3>
+                    <div class="question-nav">
+                        {% for question in questions %}
+                        <button type="button" onclick="document.getElementById('q{{ loop.index }}').scrollIntoView({behavior: 'smooth'});">
+                            {{ loop.index }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+
+        <script>
+            let duration = {{ duration }} * 60;
+            let remainingTime = duration;
+            const form = document.getElementById("examForm");
+            const timerElement = document.getElementById("timer");
+
+            function updateTimer() {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerElement.textContent =
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                // Hiệu ứng rung nhẹ mỗi lần đổi số
+                timerElement.style.transform = "scale(1.2)";
+                setTimeout(() => timerElement.style.transform = "scale(1)", 150);
+
+                // Khi còn <= 60 giây thì nhấp nháy
+                if (remainingTime <= 60) {
+                    timerElement.style.animation = "blink 1s infinite";
+                }
+
+                if (remainingTime > 0) {
+                    remainingTime--;
+                } else {
+                    clearInterval(timerInterval);
+                    alert("Hết giờ! Bài thi sẽ được nộp.");
+                    form.submit();
+                }
+            }
+
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer();
+
+            form.addEventListener("submit", function (e) {
+                if (remainingTime > 0) {
+                    const confirmSubmit = confirm("Thời gian làm bài chưa hết, bạn chắc chắn muốn nộp bài thi?");
+                    if (!confirmSubmit) {
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            // Đổi màu nút câu hỏi khi chọn đáp án
+            document.querySelectorAll(".question input[type=radio]").forEach(input => {
+                input.addEventListener("change", function () {
+                    // Lấy id của div chứa câu hỏi (vd: q1, q2,...)
+                    let questionDiv = this.closest(".question");
+                    if (questionDiv) {
+                        let questionId = questionDiv.id; // q1, q2,...
+                        // Tìm nút trong sidebar có onclick chứa id này
+                        let btn = document.querySelector(`.question-nav button[onclick*="${questionId}"]`);
+                        if (btn) {
+                            btn.classList.add("answered");
+                        }
+                    }
+                });
+            });
+
+            // Đánh dấu câu hỏi
+            document.querySelectorAll(".mark-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    let questionId = this.getAttribute("data-target"); // q1, q2,...
+                    let navBtn = document.querySelector(`.question-nav button[onclick*="${questionId}"]`);
+                    if (navBtn) {
+                        navBtn.classList.toggle("flagged"); // bật/tắt trạng thái
+                    }
+                });
+            });
+
+
+        </script>
+
+    </body>
+</html>

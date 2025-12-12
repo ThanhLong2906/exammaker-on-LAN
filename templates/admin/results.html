@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Kết quả thi</title>
+        <style>
+            /* Giữ background, header, footer y hệt trang thêm câu hỏi */
+            body {
+                font-family: Arial, sans-serif;
+                margin: 60px auto 60px;
+                max-width: 1200px;
+                background: url('/static/img/Background.jpg') no-repeat center center fixed;
+                background-size: cover;
+                color: white;
+                min-height: 100vh;
+                position: relative;
+            }
+
+            header {
+                display: flex;
+                align-items: center;
+                background: #003200;
+                padding: 10px 20px;
+                border-bottom: 3px solid yellow;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+            header img {
+                height: 80px;
+                margin-right: 15px;
+            }
+            header div {
+                color: yellow;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 25px;
+                font-weight: bold;
+            }
+            header p {
+                margin: 0;
+                font-size: 18px;
+                font-style: italic;
+                color: #ffcc00;
+            }
+
+            footer {
+                background: #003200;
+                text-align: center;
+                padding: 10px;
+                color: #ccc;
+                font-size: 14px;
+                border-top: 3px solid yellow;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+
+            main {
+                max-width: 900px;
+                margin: 90px auto 60px; /* tạo khoảng cách trên dưới cho header và footer */
+                padding: 20px;
+                background: rgba(38, 63, 7, 0.9); /* màu xanh nõn chuối đậm đặc */
+                border-radius: 10px;
+                color: black;
+                text-align: center;
+            }
+
+            h2 {
+                color: yellow;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background-color: #9acd32; /* màu xanh nõn chuối */
+                color: rgb(250, 248, 248);
+                margin: 0 auto;
+            }
+
+            table, th, td {
+                border: 1px solid black;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            th {
+                background-color: #6b8e23; /* màu xanh đậm hơn cho header bảng */
+                font-weight: bold;
+            }
+
+            a.back-link {
+                display: inline-block;
+                margin-top: 20px;
+                color: yellow;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            a.back-link:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <img src="/static/img/LOGO_f395.png" alt="Logo">
+            <div>
+                <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+                <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+            </div>
+        </header>
+
+        <main>
+            <h1 style="text-align: center; margin-top: 40px; color: yellow;">📚 Danh sách kết quả thi</h1>
+            {% if results %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thí sinh</th>
+                        <th>Đề thi</th>
+                        <th>Thời gian</th>
+                        <th>Điểm</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r.name }} ({{ r.rank }} - {{ r.unit }})</td>
+                        <td>{{ r.exam_title }}</td>
+                        <td>{{ r.submitted_at }}</td>
+                        <td>{{ r.score }}</td>
+                        <td>
+                        <!-- Nút Chi tiết -->
+                        <form action="{{ url_for('submission_detail', submission_id=r.id) }}" method="GET" style="display:inline;">
+                            <button type="submit"
+                                    style="background-color:rgb(28, 248, 86); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                                Chi tiết
+                            </button>
+                        </form>
+
+                        <!-- Nút Xóa -->
+                        <form action="{{ url_for('delete_result', submission_id=r.id) }}" method="POST" style="display:inline;">
+                            <button type="submit"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa kết quả này?');"
+                                    style="background-color:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                                Xóa
+                            </button>
+                        </form>
+                    </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <form action="{{ url_for('delete_all_results') }}" method="POST" style="display:inline;">      
+                <button type="submit"
+                        onclick="return confirm('Bạn có chắc chắn muốn xóa HẾT kết quả thi không?');"
+                        style="background-color:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                    Xóa tất cả
+                </button>
+            </form>
+            {% else %}
+                <p><i>Chưa có thí sinh dự thi.</i></p>
+            {% endif %}
+            <a href="{{ url_for('competition_exam') }}" class="back-link">
+                <button type="submit"
+                        style="background-color:rgb(28, 248, 86); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
+                    ← Quay lại Trang quản trị
+                </button>
+            </a>
+            <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+        </main>
+
+        <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+    </body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đề thi</title>
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        h2 {
+            margin-top: 130px;
+            color: #ff0000;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 1500px;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+    <h2 style="text-align: center;">Chi tiết đề thi: {{ title }}</h2>
+<div class="form-container">
+    <h3>Các câu hỏi trong đề thi</h3>
+    {% if questions %}
+        <ol>
+        {% for q in questions %}
+            <li>{{ q[1] }}</li>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <p><i>Chưa có câu hỏi nào trong đề thi này.</i></p>
+    {% endif %}
+
+    <br>
+    
+    <a href="{{ url_for('edit_exam', exam_id=exam_id) }}" style="color: #ff0000;">✏️ Sửa tiêu đề đề thi</a><br><br>
+
+    <form method="POST" action="{{ url_for('delete_exam', exam_id=exam_id) }}" onsubmit="return confirm('Bạn chắc chắn muốn xóa đề thi này?');">
+        <button type="submit" style="color:red;">🗑️ Xóa đề thi</button>
+    </form>
+
+    <br><br>
+    <a href="{{ url_for('list_exams') }}" style="color: #ff0000;">← Quay lại danh sách đề thi</a>
+</div>
+    
+<footer>
+    © Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.
+</footer>
+
+</body>
+</html>

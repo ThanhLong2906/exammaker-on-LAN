@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách thí sinh</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+        }
+
+        header img {
+            height: 80px;
+            margin-right: 10px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+            color: yellow;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 17px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        .container {
+            margin-top: 110px;
+            padding: 20px;
+            background: rgba(0, 40, 0, 0.7);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #555;
+        }
+
+        th {
+            background: #004400;
+        }
+
+        tr {
+            background: #002200;
+        }
+
+        a.btn {
+            padding: 8px 14px;
+            background: yellow;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+<div class="container">
+    <div style="text-align:right; margin-bottom:10px;">
+    <a href="{{ url_for('create_competition') }}"
+       class="btn"
+       style="background:yellow; padding:6px 12px; color:black; text-decoration:none; font-weight:bold;">
+        ➕ Tạo cuộc thi mới
+    </a>
+    </div>
+    <h2 style="text-align:center; color:yellow;">Danh sách cuộc thi</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên cuộc thi</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% if competitions %}
+                {% for c in competitions %}
+                <tr>
+                    <td>{{ c[0] }}</td>
+                    <td>{{ c[1] }}</td>
+                    <td>
+                        <a class="btn" href="/admin/competitions/{{ c[0] }}/candidates">
+                            ➜ Xem thí sinh
+                        </a>
+                        <a class="btn" href="/admin/competitions/{{ c[0] }}/exams">
+                            ➜ Xem đề thi
+                        </a>
+                        <a class="btn" href="/admin/competitions/{{ c[0] }}/results">
+                            ➜ Xem kết quả thi
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="3" style="text-align:center;"><i>Chưa có cuộc thi nào</i></td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<footer>
+    © Hệ thống thi trắc nghiệm – Sư đoàn 395
+</footer>
+
+</body>
+</html>

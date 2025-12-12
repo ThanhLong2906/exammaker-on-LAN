@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Làm bài thi</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .question { margin-bottom: 25px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        .score { font-weight: bold; color: #006600; margin-top: 5px; }
+        #timer { font-size: 20px; color: red; font-weight: bold; }
+        .submit-btn { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <h1>Bài thi</h1>
+
+    <div>
+        Thời gian còn lại: <span id="timer">--:--</span>
+    </div>
+
+    <form id="examForm" method="POST" action="{{ url_for('submit_exam') }}">
+        <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+        <input type="hidden" name="exam_id" value="{{ exam_id }}">
+
+        {% for question in questions %}
+        <div class="question">
+            <p><strong>Câu {{ loop.index }}:</strong> {{ question[1] }}</p>
+            <label><input type="radio" name="q{{ question[0] }}" value="A"> A. {{ question[2] }}</label><br>
+            <label><input type="radio" name="q{{ question[0] }}" value="B"> B. {{ question[3] }}</label><br>
+            <label><input type="radio" name="q{{ question[0] }}" value="C"> C. {{ question[4] }}</label><br>
+            <label><input type="radio" name="q{{ question[0] }}" value="D"> D. {{ question[5] }}</label><br>
+            <div class="score">Điểm: {{ question[6] }}</div>
+        </div>
+        {% endfor %}
+
+        <button class="submit-btn" type="submit">Nộp bài</button>
+    </form>
+
+    <script>
+        let duration = {{ duration }} * 60; // thời gian tính bằng giây
+        let remainingTime = duration;
+        const form = document.getElementById("examForm");
+
+        function updateTimer() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById("timer").textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (remainingTime > 0) {
+                remainingTime--;
+            } else {
+                clearInterval(timerInterval);
+                alert("Hết giờ! Bài thi sẽ được nộp.");
+                form.submit();
+            }
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        form.addEventListener("submit", function (e) {
+            if (remainingTime > 0) {
+                const confirmSubmit = confirm("Thời gian làm bài chưa hết, bạn có muốn xem lại bài thi không?");
+                if (!confirmSubmit) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

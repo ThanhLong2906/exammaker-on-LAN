@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đề thi</title>
+    <style>
+        /* Background và font tương tự trang ngân hàng câu hỏi */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 60px auto 60px;
+            max-width: 1200px;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #003200;
+            padding: 10px 20px;
+            border-bottom: 3px solid yellow;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        header img {
+            height: 80px;
+            margin-right: 15px;
+        }
+        header div {
+            color: yellow;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 0;
+            font-size: 18px;
+            font-style: italic;
+            color: #ffcc00;
+        }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        main {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            margin-top: 130px; /* tránh header */
+            color: white;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #004d00;
+        }
+        tr:nth-child(even) {
+            background-color: rgba(0, 50, 0, 0.5);
+        }
+        tr:hover {
+            background-color: rgba(0, 80, 0, 0.8);
+            box-shadow: 0 0 10px #00ff00;
+            transition: 0.3s;
+        }
+        a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            background-color: transparent;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        button:hover {
+            text-decoration: underline;
+        }
+        .flash-message {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .flash-success {
+            color: #7fff00;
+        }
+        .flash-error {
+            color: #ff4444;
+        }
+
+        /* Link quay lại màu vàng */
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<main>
+    <div style="text-align:right; margin-bottom:10px;">
+    <a href="/admin/competitions/{{ comp_id }}/exams/add"
+       class="btn"
+       style="background:yellow; padding:6px 12px; color:black; text-decoration:none; font-weight:bold;">
+        ➕ Tạo đề thi mới
+    </a>
+    </div>
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2>📚 Danh sách đề thi</h2>
+        <form method="POST" action="{{ url_for('delete_all_exams') }}"
+            onsubmit="return confirm('Bạn có chắc chắn muốn xóa TẤT CẢ đề thi?');">
+            <button type="submit" class="btn btn-danger">🗑️ Xóa tất cả</button>
+        </form>
+    </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p class="flash-message {{ 'flash-success' if category == 'success' else 'flash-error' }}">{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if exams %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nội dung đề thi</th>
+                <th>Xem chi tiết</th>
+                <th>Sửa đề thi</th>
+                <th>Xem kết quả</th>
+                <th>Xóa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exam in exams %}
+            <tr>
+                <td>{{ exam[0] }}</td>
+                <td>{{ exam[1] }}</td>
+                <td><a href="{{ url_for('edit_exam', comp_id=comp_id, exam_id=exam[0]) }}">Xem chi tiết</a></td>
+                <td><a href="{{ url_for('add_questions_to_exam', exam_id=exam[0], comp_id=comp_id) }}">Sửa</a></td>
+                <td><a href="{{ url_for('view_result', comp_id=comp_id, exam_id=exam[0])}}">Kết quả</a></td>
+                <td>
+                    <form method="POST" action="{{ url_for('delete_exam', exam_id=exam[0]) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đề thi này?');">
+                        <button type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p><i>Chưa có đề thi nào.</i></p>
+    {% endif %}
+
+    <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Quay lại trang quản trị</a>
+</main>
+
+<footer>
+    © Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.
+</footer>
+
+</body>
+</html>

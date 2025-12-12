@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Kết quả bài thi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: url('/static/img/Background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+         header {
+                display: flex;
+                align-items: center;
+                background: #003200;
+                padding: 10px 20px;
+                border-bottom: 3px solid yellow;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+            header img {
+                height: 80px;
+                margin-right: 15px;
+            }
+            header div {
+                color: yellow;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 25px;
+                font-weight: bold;
+            }
+            header p {
+                margin: 0;
+                font-size: 18px;
+                font-style: italic;
+                color: #ffcc00;
+            }
+
+        footer {
+            background: #003200;
+            text-align: center;
+            padding: 10px;
+            color: #ccc;
+            font-size: 14px;
+            border-top: 3px solid yellow;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 80px auto 80px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+            color: black;
+        }
+
+        .question {
+            border-radius: 8px;
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        .option {
+            margin: 5px 0;
+        }
+        .correct {
+            color: red;
+            font-weight: bold;
+        }
+        .selected {
+            color: green;
+            font-weight: bold;
+        }
+        .wrong {
+            color: gray;
+            text-decoration: line-through;
+        }
+        candidate_information {
+            color: aliceblue;
+        }
+        .back-button {
+            border: none;
+            padding: 1px 1px;
+            border-radius: 1px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 3px rgba(0,0,0,0.1);
+
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            /* Các thuộc tính trên */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img src="/static/img/LOGO_f395.png" alt="Logo">
+    <div>
+        <h1>SƯ ĐOÀN BỘ BINH 395</h1>
+        <p>“Đoàn kết, tiến công, luyện giỏi, đánh thắng”</p>
+    </div>
+</header>
+
+<main>
+    <h2 style="color: white;">Kết quả bài thi</h2>
+    <h3 style="color: white;">Đồng chí: {{ candidate_name }}</h3>
+    <h3 style="color: white;">Điểm số: {{ score }}/{{ total }}</h3>
+
+    {% for q in questions %}
+    <div class="question">
+        <p><strong>Câu {{ loop.index }}:</strong> {{ q.content }}</p>
+        <div class="option {% if q.correct_option == 'A' %}correct{% endif %} {% if q.selected_option == 'A' and q.correct_option != 'A' %}wrong{% endif %} {% if q.selected_option == 'A' and q.correct_option == 'A' %}selected{% endif %}">
+            A. {{ q.option_a }}
+        </div>
+        <div class="option {% if q.correct_option == 'B' %}correct{% endif %} {% if q.selected_option == 'B' and q.correct_option != 'B' %}wrong{% endif %} {% if q.selected_option == 'B' and q.correct_option == 'B' %}selected{% endif %}">
+            B. {{ q.option_b }}
+        </div>
+        <div class="option {% if q.correct_option == 'C' %}correct{% endif %} {% if q.selected_option == 'C' and q.correct_option != 'C' %}wrong{% endif %} {% if q.selected_option == 'C' and q.correct_option == 'C' %}selected{% endif %}">
+            C. {{ q.option_c }}
+        </div>
+        <div class="option {% if q.correct_option == 'D' %}correct{% endif %} {% if q.selected_option == 'D' and q.correct_option != 'D' %}wrong{% endif %} {% if q.selected_option == 'D' and q.correct_option == 'D' %}selected{% endif %}">
+            D. {{ q.option_d }}
+        </div>
+
+        <p>
+            <strong>Điểm câu này:</strong> {{ q.score }} |
+            <strong>Thí sinh chọn:</strong> {{ q.selected_option if q.selected_option else "Không chọn" }} |
+            <strong>Kết quả:</strong> {{ "Đúng ✔️" if q.is_correct else "Sai ❌" }}
+        </p>
+    </div>
+    {% endfor %}
+</main>
+    <!-- <form class="back-button">
+        <div style="text-align: center; margin-top: 5px;">
+            <a href="{{ url_for('register_candidate', candidate_id=candidate_id) }}" 
+            style="display: inline-block;
+                    background: linear-gradient(135deg, #fa9494, #2aec4e);
+                    color: #ffffff;
+                    padding: 12px 28px;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-size: 16px;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                    transition: all 0.3s ease;">
+                ⬅ Quay về trang danh sách đề thi
+            </a>
+        </div>
+    </form> -->
+    <script>
+          // Hiệu ứng hover
+            const backBtn = document.querySelector("a[href='{{ url_for('index') }}']");
+            backBtn.addEventListener("mouseenter", () => {
+                backBtn.style.transform = "translateY(-2px)";
+            });
+            backBtn.addEventListener("mouseleave", () => {
+                backBtn.style.transform = "translateY(0)";
+            });
+  
+    </script>
+
+
+<footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+</body>
+</html>
