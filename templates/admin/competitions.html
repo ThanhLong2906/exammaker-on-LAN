@@ -104,7 +104,7 @@
 </header>
 <div class="container">
     <div style="text-align:right; margin-bottom:10px;">
-    <a href="{{ url_for('create_competition') }}"
+    <a href="{{ url_for('competitions_bp.create_competition') }}"
        class="btn"
        style="background:yellow; padding:6px 12px; color:black; text-decoration:none; font-weight:bold;">
         ➕ Tạo cuộc thi mới
@@ -125,17 +125,20 @@
             {% if competitions %}
                 {% for c in competitions %}
                 <tr>
-                    <td>{{ c[0] }}</td>
-                    <td>{{ c[1] }}</td>
+                    <td>{{ c['id'] }}</td>
+                    <td>{{ c['title'] }}</td>
                     <td>
-                        <a class="btn" href="/admin/competitions/{{ c[0] }}/candidates">
+                        <a class="btn" href="/admin/competitions/{{ c['id'] }}/candidates">
                             ➜ Xem thí sinh
                         </a>
-                        <a class="btn" href="/admin/competitions/{{ c[0] }}/exams">
+                        <a class="btn" href="/admin/competitions/{{ c['id'] }}/exams">
                             ➜ Xem đề thi
                         </a>
-                        <a class="btn" href="/admin/competitions/{{ c[0] }}/results">
+                        <a class="btn" href="/admin/competitions/{{ c['id'] }}/results">
                             ➜ Xem kết quả thi
+                        </a>
+                        <a class="btn" href="/admin/competitions/{{ c['id'] }}/assign-exams">
+                            ➜ Phát đề thi
                         </a>
                     </td>
                 </tr>

@@ -147,63 +147,59 @@
 </header>
 
 <main>
-    <div style="text-align:right; margin-bottom:10px;">
-    <a href="/admin/competitions/{{ comp_id }}/exams/add"
-       class="btn"
-       style="background:yellow; padding:6px 12px; color:black; text-decoration:none; font-weight:bold;">
-        ➕ Tạo đề thi mới
-    </a>
-    </div>
 
     <div class="d-flex justify-content-between mb-3">
-        <h2>📚 Danh sách đề thi</h2>
-        <form method="POST" action="{{ url_for('competitions_bp.delete_all_exams') }}"
-            onsubmit="return confirm('Bạn có chắc chắn muốn xóa TẤT CẢ đề thi?');">
-            <button type="submit" class="btn btn-danger">🗑️ Xóa tất cả</button>
-        </form>
+        <h2>📚 Danh sách thí sinh - đề thi</h2>
     </div>
-
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <p class="flash-message {{ 'flash-success' if category == 'success' else 'flash-error' }}">{{ message }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% if exams %}
-    <table>
-        <thead>
+    <div style="margin-bottom:10px; text-align:right;">
+    <button onclick="autoAssignExams({{ competition_id }})"
+            style="padding:8px 14px; background:#ffcc00; font-weight:bold; cursor:pointer;">
+        🔀 Gán đề tự động
+    </button>
+</div>
+    <table border="1" width="100%">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Cấp bậc</th>
+            <th>Chức vụ</th>
+            <th>Đơn vị</th>
+            <th>Đề thi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in candidates %}
             <tr>
-                <th>ID</th>
-                <th>Nội dung đề thi</th>
-                <th>Xem chi tiết</th>
-                <th>Sửa đề thi</th>
-                <th>Xem kết quả</th>
-                <th>Xóa</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for exam in exams %}
-            <tr>
-                <td>{{ exam['id'] }}</td>
-                <td>{{ exam['title'] }}</td>
-                <td><a href="{{ url_for('competitions_bp.edit_exam', comp_id=comp_id, exam_id=exam['id']) }}">Xem chi tiết</a></td>
-                <td><a href="{{ url_for('competitions_bp.add_questions_to_exam', exam_id=exam['id'], comp_id=comp_id) }}">Sửa</a></td>
-                <td><a href="{{ url_for('competitions_bp.view_result', comp_id=comp_id, exam_id=exam['id'])}}">Kết quả</a></td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.rank }}</td>
+                <td>{{ c.position }}</td>
+                <td>{{ c.unit }}</td>
+
+                <!-- CỘT GÁN ĐỀ -->
                 <td>
-                    <form method="POST" action="{{ url_for('competitions_bp.delete_exam', comp_id = comp_id, exam_id=exam['id']) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đề thi này?');">
-                        <button type="submit">Xóa</button>
-                    </form>
+                    {% if c.submitted %}
+                        <span style="color:red; font-weight:bold;">
+                            Đã nộp bài
+                        </span>
+                    {% else %}
+                        <select class="exam-select"
+                                data-candidate-id="{{ c.candidate_id }}"
+                                data-competition-id="{{ competition_id }}">
+                            <option value="">-- Chưa gán đề thi --</option>
+                            {% for e in exams %}
+                                <option value="{{ e.id }}"
+                                    {% if c.exam_id == e.id %}selected{% endif %}>
+                                    {{ e.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
                 </td>
             </tr>
-            {% endfor %}
-        </tbody>
+        {% endfor %}
+    </tbody>
     </table>
-    {% else %}
-    <p><i>Chưa có đề thi nào.</i></p>
-    {% endif %}
+
 
     <a href="{{ url_for('dashboard_bp.admin_dashboard') }}" class="back-link">← Quay lại trang quản trị</a>
 </main>
@@ -211,6 +207,62 @@
 <footer>
     © Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.
 </footer>
+<script>
+document.querySelectorAll(".exam-select").forEach(select => {
+    select.addEventListener("change", function () {
+        const examId = this.value;
+        const candidateId = this.dataset.candidateId;
+        const competitionId = this.dataset.competitionId;
 
+        fetch("/admin/assign-exam/ajax", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token() if csrf_token }}"
+            },
+            body: JSON.stringify({
+                competition_id: competitionId,
+                candidate_id: candidateId,
+                exam_id: examId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.message);
+            }
+        })
+        .catch(err => {
+            alert("Lỗi khi gán đề");
+            console.error(err);
+        });
+    });
+});
+// AJAX gán đề tự động
+function autoAssignExams(competitionId) {
+    if (!confirm("Bạn có chắc muốn gán đề tự động cho toàn bộ thí sinh?")) return;
+
+    fetch("/admin/assign-exam/auto", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ competition_id: competitionId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("✅ Đã gán đề tự động");
+            location.reload(); // reload để cập nhật bảng
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Lỗi khi gán đề");
+    });
+}
+</script>
 </body>
 </html>

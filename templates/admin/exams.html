@@ -182,10 +182,13 @@
 
 
                 <br>
+                <a href="{{ url_for('competitions_bp.download_exams_template') }}"
+                    style="color:yellow; font-weight:bold;">
+                    📥 Tải file Excel mẫu tạo đề thi
+                </a>
                 <label>Upload file Excel câu hỏi:</label>
 
                 <input type="file" name="excel_file" accept=".xlsx,.xls">
-
                 <br>
                 <label for="num_questions">Số câu hỏi mỗi đề:</label>
                 <input type="number" id="num_questions" name="num_questions" min="1" placeholder="VD: 10" required style="width: 100px";>
@@ -193,11 +196,9 @@
                 <input type="number" id="num_exams" name="num_exams" min="1" value="1" required style="width: 100px;">
                 <button type="submit" style="background-color: lawngreen; color: maroon;">Tạo đề thi</button>
                 <button style="background:#c2db48; color:white; font-weight:bold; padding:10px 10px; border-radius:10px;";>
-                    <a href="{{ url_for('admin_dashboard') }}">← Quay lại Trang quản trị</a>
+                    <a href="{{ url_for('dashboard_bp.admin_dashboard') }}">← Quay lại Trang quản trị</a>
                 </button>
-            <!-- </form> -->
             <br><br>
-            <!-- <form method="POST" enctype="multipart/form-data"> -->
                 <table>
                     <thead>
                         <tr>
@@ -210,13 +211,13 @@
                         {% for q in questions %}
                         <tr>
                             <td style="text-align: center;">
-                                <input type="checkbox" name="question_ids" value="{{ q[0] }}">
+                                <input type="checkbox" name="question_ids" value="{{ q['id'] }}">
                             </td>
                             <td style="text-align: center;">
                                 <input type="number" step="0.1" name="scores" value="1" min="1" required>
                             </td>
                             <td>
-                                <label for="q{{ q[0] }}">{{ q[1] }}</label>
+                                <label for="q{{ q['id'] }}">{{ q['content'] }}</label>
                             </td>
                         </tr>
                         {% endfor %}

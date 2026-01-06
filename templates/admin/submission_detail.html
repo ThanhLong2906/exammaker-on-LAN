@@ -106,10 +106,10 @@
         <main>
             <h2>Chi tiết bài thi</h2>
 
-            <p><b>Thí sinh:</b> {{ submission[3] }} ({{ submission[4] }} - {{ submission[5] }})</p>
-            <p><b>Đề thi:</b> {{ submission[6] }}</p>
-            <p><b>Thời gian nộp:</b> {{ submission[1] }}</p>
-            <p><b>Điểm tổng:</b> {{ submission[2] }}</p>
+            <p><b>Thí sinh:</b> {{ submission['name'] }} ({{ submission['rank'] }} - {{ submission['unit'] }})</p>
+            <p><b>Đề thi:</b> {{ submission['exam_title'] }}</p>
+            <p><b>Thời gian nộp:</b> {{ submission['submitted_at'] }}</p>
+            <p><b>Điểm tổng:</b> {{ submission['score'] }}</p>
 
             <table>
                 <thead>
@@ -129,14 +129,14 @@
                     {% for a in answers %}
                     <tr class="{% if a.is_correct %}correct{% else %}wrong{% endif %}">
                         <td>{{loop.index}} </td>
-                        <td>{{ a[0] }}</td>
-                        <td>{{ a[1] }}</td>
-                        <td>{{ a[2] }}</td>
-                        <td>{{ a[3] }}</td>
-                        <td>{{ a[4] }}</td>
-                        <td>{{ a[5] }}</td>
-                        <td>{{ a[6] }}</td>
-                        <td>{{ a[8] }}</td>
+                        <td>{{ a['content'] }}</td>
+                        <td>{{ a['option_a'] }}</td>
+                        <td>{{ a['option_b'] }}</td>
+                        <td>{{ a['option_c'] }}</td>
+                        <td>{{ a['option_d'] }}</td>
+                        <td>{{ a['correct_option'] }}</td>
+                        <td>{{ a['selected_option'] }}</td>
+                        <td>{{ a['score_earned'] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -149,14 +149,11 @@
     </button>
 
     <!-- Nút xuất Excel -->
-    <a href="{{ url_for('export_submission_excel', submission_id=submission[0]) }}"
+    <a href="{{ url_for('competitions_bp.export_submission_excel', submission_id=submission['id']) }}"
        style="padding:8px 15px; background:#1e90ff; color:white; text-decoration:none; border-radius:5px;">
         ⬇ Xuất Excel
     </a>
 </div>
-
-
-            <a href="{{ url_for('admin_results') }}" class="back-link">← Quay lại danh sách kết quả</a>
         </main>
         <script>
             if (a[6] == null) {

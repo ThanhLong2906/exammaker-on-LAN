@@ -22,12 +22,12 @@ def get_units_tree():
     units_dict = []
     for idx, row in enumerate(rows):
         units_dict.append({})
-        units_dict[idx]["unit_id"] = row[0]
-        units_dict[idx]["unit_name"] = row[1]
-        units_dict[idx]["parent_id"] = row[2]
+        units_dict[idx]["unit_id"] = row['unit_id']
+        units_dict[idx]["unit_name"] = row["unit_name"]
+        units_dict[idx]["parent_id"] = row["parent_id"]
         units_dict[idx]["children"] = []
         # row["children"] = []
-        lookup[row[0]] = units_dict[idx]
+        lookup[row['unit_id']] = units_dict[idx]
 
     for unit_dict in units_dict:
         if unit_dict["parent_id"] is None:

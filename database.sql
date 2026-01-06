@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 
 -- Tạo tài khoản mẫu: admin / Admin@395!
 INSERT INTO admin_users (username, password_hash, role) VALUES
-('admin', 'pbkdf2:sha256:1000000$geMDqhELbto9kjLK$49679762a88ea35c07fb20abebfae0b391596202f9269e37e39383c35b9bc2bf', 'superadmin');
+('admin_n', 'pbkdf2:sha256:1000000$geMDqhELbto9kjLK$49679762a88ea35c07fb20abebfae0b391596202f9269e37e39383c35b9bc2bf', 'superadmin');
 -- Admin@395!
 
 -- Bảng cuộc thi
@@ -68,7 +68,7 @@ CREATE TABLE questions (
     created_by INT NULL,
     subject_id INT NULL,
     FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL,
-    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
 
 -- Bảng thí sinh
@@ -92,6 +92,7 @@ CREATE TABLE candidates (
     competition_id INT NOT NULL,
     created_by INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_version INT DEFAULT 1,
     FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES admin_users(id)
 );
@@ -148,3 +149,29 @@ CREATE TABLE submission_answers (
     FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
 );
 
+-- Bảng liên kết thí sinh - đê thi
+CREATE TABLE exam_assignments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    competition_id INT NOT NULL,
+    exam_id INT NOT NULL,
+    candidate_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_ea_contest
+        FOREIGN KEY (competition_id)
+        REFERENCES competitions(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_ea_exam
+        FOREIGN KEY (exam_id)
+        REFERENCES exams(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_ea_candidate
+        FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+-- thêm ràng buộc 1 thí sinh - 1 đề
+ALTER TABLE exam_assignments
+ADD UNIQUE KEY uq_candidate_contest (exam_id, candidate_id);

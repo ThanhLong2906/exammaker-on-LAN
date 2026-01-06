@@ -168,16 +168,16 @@
 
     <form method="POST">
         <label for="title">Tiêu đề:</label><br>
-        <input type="text" id="title" name="title" value="{{ exam[1] }}" required><br><br>
+        <input type="text" id="title" name="title" value="{{ exam['title'] }}" required><br><br>
 
         <label for="duration">Thời gian làm bài (phút):</label><br>
-        <input type="number" id="duration" name="duration" value="{{ exam[2] }}" min="1" required><br><br>
+        <input type="number" id="duration" name="duration" value="{{ exam['duration_minutes'] }}" min="1" required><br><br>
 
         <button type="submit">Cập nhật</button>
     </form>
 
     <br>
-    <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+    <a href="{{ url_for('competitions_bp.competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
     <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
 </body>
 </html>

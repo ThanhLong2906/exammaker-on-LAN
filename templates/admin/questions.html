@@ -177,57 +177,46 @@
     {% endwith %}
     <h1 style="text-align: center; margin-top: 10px;">📚 Ngân hàng câu hỏi</h1>
         <!-- Form upload Excel -->
-    <form action="{{ url_for('import_questions') }}" method="post" enctype="multipart/form-data">
+    <form action="/admin/questions/import" method="post" enctype="multipart/form-data">
         <label>Nhập câu hỏi từ Excel:</label>
         <!--File mẫu excel-->
         📥 <a href="{{ url_for('static', filename='sample_questions.xlsx') }}" download>
             Tải file Excel mẫu
         </a>
         <br>
-        <form action="{{ url_for('import_questions') }}" method="POST" enctype="multipart/form-data">
+        <!-- <form action="{{ url_for('questions_bp.import_questions') }}" method="POST" enctype="multipart/form-data"> -->
         <input type="file" name="excel_file" accept=".xlsx,.xls" required>
+        <input type="hidden" name="subject_id" id="hiddenSubjectId">
         <button type="submit">📂 Tải lên</button>
+        <!-- </form> -->
     </form>
-    </form>
-
-
     <hr>
-        <!-- <form method="post" style="margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+        <form method="get" action="/admin/questions"
+             style="margin-bottom:15px; display:flex; align-items:center; gap:10px;">
             <label for="subject_id">Môn học:</label>
-            <select name="subject_id" id="subject_id" onchange="this.form.submit()">
+            <select name="subject_id" id="subjectSelect">
                 <option value="">Tất cả môn</option>
                 {% for s in subjects %}
-                    <option value="{{ s[0] }}" {% if request.form.get("subject_id") == s[0]|string %}selected{% endif %}>
-                        {{ s[1] }}
+                    <option value="{{ s['id'] }}" {% if  request.args.get("subject_id") == s["id"]|string %}selected{% endif %}>
+                        {{ s['subject_name'] }}
                     </option>
+                    <!-- <option value="{{ s.id }}">{{ s.subject_name }}</option> -->
                 {% endfor %}
             </select>
-
-            <-- 🔥 Nút tạo môn học mới -->
-            <!-- <button type="button" onclick="openSubjectModal()" 
-                    style="padding:6px 12px; background:yellow; font-weight:bold; cursor:pointer;">
-                ➕ Tạo môn học
-            </button>
-        </form>  -->
-        
-        <form method="post" action="/admin/questions">
-            <div style="margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-            <label for="subject_id">Môn học:</label>
-            <select name="subject_id" id="subject_id" onchange="this.form.submit()">
-                <option value="">Tất cả môn</option>
-                {% for s in subjects %}
-                    <option value="{{ s[0] }}" {% if request.form.get("subject_id") == s[0]|string %}selected{% endif %}>
-                        {{ s[1] }}
-                    </option>
-                {% endfor %}
-            </select>
-
             <!-- 🔥 Nút tạo môn học mới -->
             <button type="button" onclick="openSubjectModal()" 
                     style="padding:6px 12px; background:yellow; font-weight:bold; cursor:pointer;">
                 ➕ Tạo môn học
             </button>
-            </div>
+        </form>
+        <!-- ❌ Xóa môn -->
+            <button type="button"
+                    onclick="deleteSubject()"
+                    style="padding:6px 12px; background:red; color:white; font-weight:bold;">
+                ❌ Xóa môn học
+            </button>
+        <form method="post" action="/admin/questions">
+            <!-- 🔥 GIỮ MÔN HỌC ĐANG CHỌN -->
             <label for="content" style="margin-left: 50px;">Nhập nội dung câu hỏi:</label>
             <div style="text-align: center;">
             <textarea id="content" name="content" required></textarea>
@@ -270,18 +259,18 @@
         
         <!-- Lọc câu hỏi theo môn -->
          <form method="get" action="/admin/questions">
-            <select name="subject_filter" onchange="this.form.submit()">
-                <option value="">-- Tất cả môn học --</option>
+            <select name="subject_filter" id="subject_filter">
+                <option value="{{ subjects }}">Tất cả môn</option>
                 {% for s in subjects %}
-                    <option value="{{ s[0] }}" {% if request.args.get('subject_filter') == s[0]|string %}selected{% endif %}>
-                        {{ s[1] }}
+                    <option value="{{ s["id"] }}" {% if  request.args.get("subject_filter") == s["id"]|string %}selected{% endif %}>
+                        {{ s['subject_name'] }}
                     </option>
                 {% endfor %}
             </select>
         </form>
 
         <!-- Form tìm kiếm -->
-        <form method="get" action="{{ url_for('question_list') }}" style="margin-bottom: 15px;">
+        <form method="get" action="{{ url_for('questions_bp.question_list') }}" style="margin-bottom: 15px;">
             <label for="tìm kiếm">Tìm kiếm:</label>
             <input type="text" name="keyword" placeholder=" Nhập từ khóa tìm kiếm..." 
                 value="{{ keyword if keyword else '' }}" 
@@ -290,7 +279,7 @@
         </form>
 
         <!-- Nút quay lại trang quản trị và nút xóa tất cả câu hỏi -->
-        <form action="{{ url_for('delete_all_questions') }}" method="POST"
+        <form action="{{ url_for('questions_bp.delete_all_questions') }}" method="POST"
             onsubmit="return confirm('⚠ Bạn có chắc chắn muốn xóa TẤT CẢ câu hỏi không? Hành động này không thể hoàn tác!');">
             <button type="submit" style="background:#cc0000; color:white; font-weight:bold; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; margin-bottom:10px;">
                 🗑 Xóa tất cả câu hỏi
@@ -298,11 +287,10 @@
         </form>
 
         <button style="background:#c2db48; color:white; padding:10px 20px; border-radius:6px;">
-            <a href="{{ url_for('admin_dashboard') }}" >← Quay lại Trang quản trị</a>
+            <a href="{{ url_for('dashboard_bp.admin_dashboard') }}" >← Quay lại Trang quản trị</a>
         </button>
 
-        <!-- Bảng danh sách câu hỏi trong ngân hàng câu hỏi -->
-        <table>
+        <!-- <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -319,16 +307,16 @@
             <tbody>
                 {% for q in questions %}
                 <tr>
-                    <td>{{ q[0] }}</td>
-                    <td>{{ q[1] }}</td>
-                    <td>{{ q[2] }}</td>
-                    <td>{{ q[3] }}</td>
-                    <td>{{ q[4] }}</td>
-                    <td>{{ q[5] }}</td>
-                    <td>{{ q[6] }}</td>
-                    <td><a href="{{ url_for('edit_question', question_id=q[0]) }}" style="color:#ccff33; font-weight:bold;">Sửa</a></td>
+                    <td>{{ q['id'] }}</td>
+                    <td>{{ q['content'] }}</td>
+                    <td>{{ q['option_a'] }}</td>
+                    <td>{{ q['option_b'] }}</td>
+                    <td>{{ q['option_c'] }}</td>
+                    <td>{{ q['option_d'] }}</td>
+                    <td>{{ q['correct_option'] }}</td>
+                    <td><a href="{{ url_for('questions_bp.edit_question', question_id=q['id']) }}" style="color:#ccff33; font-weight:bold;">Sửa</a></td>
                     <td>
-                        <form action="{{ url_for('delete_question', question_id=q[0]) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa câu hỏi này?');">
+                        <form action="{{ url_for('questions_bp.delete_question', question_id=q['id']) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa câu hỏi này?');">
                             <button type="submit">Xóa</button>
                         </form>
                     </td>
@@ -337,7 +325,31 @@
                 <tr><td colspan="9" style="color:#ffcc00; text-align:center;">Chưa có câu hỏi nào.</td></tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table> -->
+        <table style="width:100%; border-collapse:collapse; background:#002200; color:white;">
+    <thead>
+        <tr style="background:#004400;">
+            <th style="padding:8px;">ID</th>
+            <th style="padding:8px; width:35%;">Nội dung câu hỏi</th>
+            <th style="padding:8px;">A</th>
+            <th style="padding:8px;">B</th>
+            <th style="padding:8px;">C</th>
+            <th style="padding:8px;">D</th>
+            <th style="padding:8px;">Đáp án</th>
+            <th style="padding:8px;">Hành động</th>
+        </tr>
+    </thead>
+
+    <!-- 🔥 JS sẽ render dữ liệu vào đây -->
+    <tbody id="questionTable">
+        <tr>
+            <td colspan="8" style="text-align:center; padding:20px;">
+                <i>Vui lòng chọn môn học để xem câu hỏi</i>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 </main>
 
 <!-- ================== MODAL TẠO MÔN HỌC ================== -->
@@ -383,6 +395,97 @@ function submitSubject() {
     .then(resp => {
         alert(resp.message);
         if (resp.status === "success") location.reload();
+    });
+}
+// ===== chọn môn học khi tạo câu hỏi mới ========
+subjectSelect.addEventListener("change", function () {
+    fetch("/admin/questions/set_active_subject", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            subject_id: this.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Active subject saved:", data.subject_id);
+    });
+});
+// ===== Giữ môn đang chọn sau khi load lại trang ========
+const activeSubject = "{{ session.get('active_subject_id', '') }}";
+if (activeSubject) {
+    document.getElementById("subjectSelect").value = activeSubject;
+}
+// ===== load câu hỏi theo môn (không reload) ========
+document.getElementById("subject_filter").addEventListener("click", function () {
+    const subjectFilter = this.value;
+    fetch(`/admin/questions/api`,{
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ subjectFilter: subjectFilter })
+        })
+        .then(res => res.json())
+        .then(data => {
+        let html = "";
+
+    if (data.length === 0) {
+        html = `
+            <tr>
+                <td colspan="8" style="text-align:center;">
+                    <i>Không có câu hỏi</i>
+                </td>
+            </tr>
+        `;
+    } else {
+        data.forEach(q => {
+            html += `
+                <tr>
+                    <td>${q.id}</td>
+                    <td>${q.content}</td>
+                    <td>${q.option_a}</td>
+                    <td>${q.option_b}</td>
+                    <td>${q.option_c}</td>
+                    <td>${q.option_d}</td>
+                    <td style="text-align:center; font-weight:bold; color:#ffcc00;">
+                        ${q.correct_option}
+                    </td>
+                    <td style="text-align:center;">
+                        <a href="/admin/questions/edit/${q.id}" style="color:#ccff33; font-weight:bold;">Sửa</a>
+                        |
+                        <button onclick="deleteQuestion(${q.id})"
+                                style="background:none; color:red; border:none; cursor:pointer;">
+                            Xóa
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    document.getElementById("questionTable").innerHTML = html;
+        });
+});
+// ====== Xóa môn học ==============
+function deleteSubject() {
+    const subjectId = document.getElementById("subjectSelect").value;
+
+    let message = subjectId
+        ? "Bạn có chắc muốn xóa môn học này?"
+        : "⚠ Bạn có chắc muốn XÓA TOÀN BỘ MÔN HỌC?";
+
+    if (!confirm(message)) return;
+
+    fetch("/admin/subjects/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject_id: subjectId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) location.reload();
     });
 }
 </script>

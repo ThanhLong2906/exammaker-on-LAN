@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách đề thi</title>
+    <title>Dashboard thí sinh</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -185,6 +185,7 @@
     </header>
 
     <div class="container">
+        <h2>Xin chào {{ session.candidate_name}}
         <h2 class="title">Danh sách đề thi</h2>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -196,24 +197,22 @@
             {% endif %}
         {% endwith %}
         <div class="exam-list-container">
-        {% if exams %}
-            {% for exam in exams %}
-            <div class="exam-item">
-                <strong>{{ exam[1] }}</strong>
-                
-                <form method="POST" action="{{ url_for('do_exam', exam_id=exam[0], candidate_id=candidate_id) }}">
-                    <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
-                    <button type="submit">Làm bài</button>
-                </form>
-            </div>
+        {% if competitions %}
+            {% for c in competitions %}
+                <div class="exam-item">
+                    <strong>{{ c['competition_name'] }}</strong>
+                    
+                    <form method="POST" action="{{ url_for('candidates_bp.do_exam', comp_id=c['competition_id']) }}">
+                        <!-- <input type="hidden" name="candidate_id" value="{{ candidate_id }}"> -->
+                        <button type="submit">Làm bài</button>
+                    </form>
+                </div>
             {% endfor %}
         {% else %}
-            <p class="no-exams">Chưa có đề thi nào.</p>
+            <p class="no-exams">Chưa có cuộc thi nào.</p>
         {% endif %}
         </div>
     </div>
-
-    <button class="back-button" onclick="window.location.href='{{ url_for('index') }}'">← Quay lại</button>
 
     <footer>
         Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395

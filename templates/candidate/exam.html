@@ -228,18 +228,18 @@
         </header>
 
         <main>
-            <form id="examForm" method="POST" action="{{ url_for('submit_exam', candidate_name=candidate_name) }}" class="questions-container">
+            <form id="examForm" method="POST" action="{{ url_for('candidates_bp.submit_exam', comp_id=comp_id) }}" class="questions-container">
                 <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
                 <input type="hidden" name="exam_id" value="{{ exam_id }}">
 
                 {% for question in questions %}
                 <div class="question" id="q{{ loop.index }}">
-                    <p><strong>Câu {{ loop.index }}:</strong> {{ question[1] }}</p>
-                    <div class="score">Điểm: {{ question[9] }}</div>
-                    <label><input type="radio" name="q{{ question[0] }}" value="A"> A. {{ question[2] }}</label><br>
-                    <label><input type="radio" name="q{{ question[0] }}" value="B"> B. {{ question[3] }}</label><br>
-                    <label><input type="radio" name="q{{ question[0] }}" value="C"> C. {{ question[4] }}</label><br>
-                    <label><input type="radio" name="q{{ question[0] }}" value="D"> D. {{ question[5] }}</label><br>
+                    <p><strong>Câu {{ loop.index }}:</strong> {{ question['content'] }}</p>
+                    <div class="score">Điểm: {{ question['score'] }}</div>
+                    <label><input type="radio" name="q{{ question['id'] }}" value="A"> A. {{ question['option_a'] }}</label><br>
+                    <label><input type="radio" name="q{{ question['id'] }}" value="B"> B. {{ question['option_b'] }}</label><br>
+                    <label><input type="radio" name="q{{ question['id'] }}" value="C"> C. {{ question['option_c'] }}</label><br>
+                    <label><input type="radio" name="q{{ question['id'] }}" value="D"> D. {{ question['option_d'] }}</label><br>
 
                     <!-- Nút đánh dấu -->
                     <button type="button" class="mark-btn" data-target="q{{ loop.index }}"><a7>Đánh dấu câu này</a7></button>

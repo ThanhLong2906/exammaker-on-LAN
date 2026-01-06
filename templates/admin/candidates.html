@@ -156,6 +156,10 @@
         <div>
             <button class="btn btn-add" onclick="openAddModal()">➕ Thêm thí sinh</button>
             <button class="btn btn-import" onclick="openImportModal()">📥 Nhập từ Excel</button>
+            <a href="{{ url_for('competitions_bp.download_candidate_template') }}"
+            style="color:yellow; font-weight:bold;">
+                📥 Tải file Excel mẫu đăng ký thí sinh
+            </a>
         </div>
     </div>
 
@@ -176,15 +180,15 @@
             {% if candidates %}
                 {% for c in candidates %}
                 <tr>
-                    <td>{{ c[0] }}</td>
-                    <td>{{ c[1] }}</td>
-                    <td>{{ c[2] }}</td>
-                    <td>{{ c[3] }}</td>
-                    <td>{{ c[4] }}</td>
-                    <td>{{ c[5] }}</td>
+                    <td>{{ c['id'] }}</td>
+                    <td>{{ c['name'] }}</td>
+                    <td>{{ c['rank'] }}</td>
+                    <td>{{ c['position'] }}</td>
+                    <td>{{ c['unit'] }}</td>
+                    <td>{{ c['username'] }}</td>
                     <td>
-                        <button class="btn-password" onclick="openPasswordModal({{ c[0] }}, '{{ c[5] }}')">🔑 Mật khẩu</button>
-                        <button class="btn-delete" onclick="deleteCandidate({{ c[0] }}, '{{ c[5] }}')">🗑 Xóa</button>
+                        <button class="btn-password" onclick="openPasswordModal({{ c['id'] }}, '{{ c['username'] }}')">🔑 Mật khẩu</button>
+                        <button class="btn-delete" onclick="deleteCandidate({{ c['id'] }}, '{{ c['username'] }}')">🗑 Xóa</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -234,7 +238,6 @@
 <div id="pwModal" class="modal-bg">
     <div class="modal-box">
         <h3>Đổi mật khẩu – <span id="pwUser" style="color:yellow;"></span></h3>
-
         <input id="newPw" type="password" placeholder="Mật khẩu mới">
         <input id="confirmPw" type="password" placeholder="Nhập lại mật khẩu">
 
@@ -332,7 +335,7 @@
         .then(r => r.json())
         .then(d => {
             alert(d.message);
-            if (d.status === "success") closePwModal();
+            if (d.status === "success") location.reload();
         });
     }
 </script>

@@ -107,7 +107,13 @@ def admin_logout():
     response.headers['Expires'] = '0'
     return response
 
-# ---------- ADMIN ----------
+# =========================== ADMIN ====================================
+# dashboard
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    return render_template('admin/dashboard.html')
+
 # đổi mật khẩu
 @app.route("/admin/change_password_admin", methods=["GET", "POST"])
 @login_required
@@ -146,31 +152,28 @@ def admin_change_password():
 
     return render_template("admin/change_password.html")
 
-# đổi mật khẩu user
-@app.route("/admin/change_password", methods=["POST"])
+# ======================= QUẢN LÝ NGƯỜI DÙNG =================================
+# Quản trị người dùng
+@app.route("/admin/user_management")
 @login_required
 @role_required("superadmin")
-def change_password():
-    data = request.get_json()
-    user_id = data.get("user_id")
-    new_password = data.get("password")
+def user_management():
+    units_tree = get_units_tree()
+    return render_template("admin/user_management.html", units_tree=units_tree)
 
-    if not user_id or not new_password:
-        return jsonify({"status": "error", "message": "Thiếu dữ liệu!"})
-
-    password_hash = generate_password_hash(new_password)
-
-    cursor = mysql.connection.cursor()
+#lấy danh sách tài khoản thuộc 1 đơn vị
+@app.route("/admin/get_users/<int:unit_id>")
+@login_required
+def get_users_by_unit(unit_id):
+    cursor = mysql.connection.cursor(DictCursor)
     cursor.execute("""
-        UPDATE admin_users 
-        SET password_hash = %s
-        WHERE id = %s
-    """, (password_hash, user_id))
-
-    mysql.connection.commit()
+        SELECT id, username, role, status   
+        FROM admin_users 
+        WHERE unit_id = %s
+    """, (unit_id,))
+    users = cursor.fetchall()
     cursor.close()
-
-    return jsonify({"status": "success"})
+    return jsonify(users)
 
 # tạo tài khoản quản trị
 @app.route("/admin/create_user", methods=["GET", "POST"])
@@ -211,6 +214,32 @@ def create_user():
 
     return render_template("admin/create_user.html")
 
+# đổi mật khẩu user
+@app.route("/admin/change_password", methods=["POST"])
+@login_required
+@role_required("superadmin")
+def change_password():
+    data = request.get_json()
+    user_id = data.get("user_id")
+    new_password = data.get("password")
+
+    if not user_id or not new_password:
+        return jsonify({"status": "error", "message": "Thiếu dữ liệu!"})
+
+    password_hash = generate_password_hash(new_password)
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        UPDATE admin_users 
+        SET password_hash = %s
+        WHERE id = %s
+    """, (password_hash, user_id))
+
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"status": "success"})
+
 # Điều chỉnh tài khoản
 @app.route("/admin/toggle_user_status", methods=["POST"])
 @login_required
@@ -232,20 +261,6 @@ def toggle_user_status():
     cursor.close()
 
     return jsonify({"status": "success", "new_status": new_status})
-
-#lấy danh sách tài khoản thuộc 1 đơn vị
-@app.route("/admin/get_users/<int:unit_id>")
-@login_required
-def get_users_by_unit(unit_id):
-    cursor = mysql.connection.cursor(DictCursor)
-    cursor.execute("""
-        SELECT id, username, role, status   
-        FROM admin_users 
-        WHERE unit_id = %s
-    """, (unit_id,))
-    users = cursor.fetchall()
-    cursor.close()
-    return jsonify(users)
 
 # Xóa tài khoản
 @app.route("/admin/delete_user", methods=["POST"])
@@ -269,113 +284,6 @@ def delete_user():
     cursor.close()
 
     return jsonify({"status": "success"})
-
-# danh sách thí sinh của một cuộc thi
-@app.route("/admin/competitions/<int:comp_id>/candidates")
-@login_required
-def manage_candidates(comp_id):
-    cur = mysql.connection.cursor()
-
-    # Check quyền admin
-    if session["admin_role"] != "superadmin":
-        cur.execute("SELECT created_by FROM competitions WHERE id=%s", (comp_id,))
-        owner = cur.fetchone()
-        if not owner or owner[0] != session["admin_id"]:
-            return "Bạn không có quyền!", 403
-
-    cur.execute("SELECT * FROM candidates WHERE competition_id=%s", (comp_id,))
-    candidates = cur.fetchall()
-    cur.close()
-
-    return render_template("admin/candidates.html", candidates=candidates, comp_id=comp_id)
-
-# Thêm thí sinh vào cuộc thi
-@app.route("/admin/competitions/<int:comp_id>/candidates/add", methods=["POST"])
-@login_required
-def add_candidate(comp_id):
-    data = request.json
-    full_name = data["full_name"]
-    rank = data["rank"]
-    position = data["position"]
-    unit = data["unit"]
-    username = data["username"]
-    password = data["password"]
-
-    pw_hash = generate_password_hash(password)
-
-    cur = mysql.connection.cursor()
-
-    # Check username trùng
-    cur.execute("SELECT id FROM candidates WHERE username=%s", (username,))
-    if cur.fetchone():
-        return {"status": "error", "message": "Tên đăng nhập đã tồn tại!"}
-
-    cur.execute("""
-        INSERT INTO candidates (name, `rank`, position, unit, username, password_hash, competition_id, created_by)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-    """, (full_name, rank, position, unit, username, pw_hash, comp_id, session["admin_id"]))
-
-    mysql.connection.commit()
-    cur.close()
-
-    return {"status": "success", "message": "Thêm thí sinh thành công!"}
-# xóa thí sinh khỏi cuộc thi
-@app.route("/admin/candidates/delete", methods=["POST"])
-@login_required
-def delete_candidate():
-    cid = request.json.get("candidate_id")
-
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM candidates WHERE id=%s LIMIT 1", (cid,))
-    mysql.connection.commit()
-    cur.close()
-
-    return {"status": "success"}
-# import danh sách thí sinh từ file excel
-@app.route("/admin/competitions/<int:comp_id>/candidates/import", methods=["POST"])
-@login_required
-def import_candidates(comp_id):
-    file = request.files.get('excel_file')
-    if not file:
-        return {"status": "error", "message": "Không có file Excel"}
-
-    import pandas as pd
-    df = pd.read_excel(file)
-
-    required = ["full_name", "rank", "position", "unit", "username", "password"]
-    if not all(col in df.columns for col in required):
-        return {"status": "error", "message": "File thiếu cột"}
-
-    cur = mysql.connection.cursor()
-
-    added = 0
-    skipped = 0
-    for _, row in df.iterrows():
-        cur.execute("SELECT id FROM candidates WHERE username=%s", (row["username"],))
-        if cur.fetchone():
-            skipped += 1
-            continue
-
-        pw_hash = generate_password_hash(str(row["password"]).strip())
-
-        cur.execute("""
-            INSERT INTO candidates (full_name, `rank`, position, unit, username, password_hash, competition_id, created_by)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            row["full_name"], row["rank"], row["position"], row["unit"],
-            row["username"], pw_hash, comp_id, session["admin_id"]
-        ))
-        added += 1
-
-    mysql.connection.commit()
-    cur.close()
-
-    return {
-        "status": "success",
-        "added": added,
-        "skipped": skipped,
-        "message": f"Thêm {added} thí sinh, bỏ qua {skipped} tài khoản trùng."
-    }
 
 # Tạo đơn vị
 @app.route("/admin/create_unit", methods=["POST"])
@@ -430,52 +338,7 @@ def set_active_unit():
     session["active_unit"] = data.get("unit_id")
     return {"status": "ok"}
 
-# Quản trị người dùng
-@app.route("/admin/user_management")
-@login_required
-@role_required("superadmin")
-def user_management():
-    units_tree = get_units_tree()
-    return render_template("admin/user_management.html", units_tree=units_tree)
-
-
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    return render_template('admin/dashboard.html')
-
-# Tạo môn học
-@app.route("/admin/subjects/create", methods=["POST"])
-@login_required
-def create_subject():
-    data = request.get_json()
-    name = data.get("subject_name", "").strip()
-
-    if not name:
-        return jsonify({"status": "error", "message": "Tên môn học không được để trống!"})
-
-    cur = mysql.connection.cursor()
-
-    # Kiểm tra trùng tên trong phạm vi admin
-    if session["admin_role"] == "superadmin":
-        cur.execute("SELECT id FROM subjects WHERE subject_name=%s", (name,))
-    else:
-        cur.execute("SELECT id FROM subjects WHERE subject_name=%s AND created_by=%s",
-                    (name, session["admin_id"]))
-
-    if cur.fetchone():
-        return jsonify({"status": "error", "message": "Môn học đã tồn tại!"})
-
-    cur.execute("""
-        INSERT INTO subjects (subject_name, created_by)
-        VALUES (%s, %s)
-    """, (name, session["admin_id"]))
-
-    mysql.connection.commit()
-    cur.close()
-
-    return jsonify({"status": "success", "message": "Đã tạo môn học mới!"})
-
+#============================== QUẢN LÝ NGÂN HÀNG CÂU HỎI ==================================
 # Ngân hàng câu hỏi (on dashboard)
 @app.route('/admin/questions', methods=['GET', 'POST'])
 @login_required
@@ -554,6 +417,62 @@ def admin_questions():
     return render_template('admin/questions.html', questions=questions,
                                                     subjects=subjects,
                                                     subject_filter=subject_filter )
+# tìm kiếm câu hỏi
+@app.route('/question_list')
+@login_required
+def question_list():
+    keyword = request.args.get('keyword', '').strip()
+    cur = mysql.connection.cursor()
+
+    if keyword:
+        sql = """
+            SELECT * FROM questions
+            WHERE content LIKE %s
+            OR option_a LIKE %s
+            OR option_b LIKE %s
+            OR option_c LIKE %s
+            OR option_d LIKE %s
+        """
+        like = f"%{keyword}%"
+        cur.execute(sql, (like, like, like, like, like))
+    else:
+        cur.execute("SELECT * FROM questions")
+
+    questions = cur.fetchall()
+    cur.close()
+    return render_template('admin/questions.html', questions=questions, keyword=keyword)
+
+# Tạo môn học
+@app.route("/admin/subjects/create", methods=["POST"])
+@login_required
+def create_subject():
+    data = request.get_json()
+    name = data.get("subject_name", "").strip()
+
+    if not name:
+        return jsonify({"status": "error", "message": "Tên môn học không được để trống!"})
+
+    cur = mysql.connection.cursor()
+
+    # Kiểm tra trùng tên trong phạm vi admin
+    if session["admin_role"] == "superadmin":
+        cur.execute("SELECT id FROM subjects WHERE subject_name=%s", (name,))
+    else:
+        cur.execute("SELECT id FROM subjects WHERE subject_name=%s AND created_by=%s",
+                    (name, session["admin_id"]))
+
+    if cur.fetchone():
+        return jsonify({"status": "error", "message": "Môn học đã tồn tại!"})
+
+    cur.execute("""
+        INSERT INTO subjects (subject_name, created_by)
+        VALUES (%s, %s)
+    """, (name, session["admin_id"]))
+
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({"status": "success", "message": "Đã tạo môn học mới!"})
 
 # Thêm câu hỏi từ file excel
 @app.route("/admin/questions/import", methods=["POST"])
@@ -640,8 +559,9 @@ def delete_question(question_id):
     cur.close()
     flash('Xóa câu hỏi thành công!', 'success')
     return redirect(url_for('admin_questions'))
-#
-# Quản lý cuộc thi
+
+# =========================== QUẢN LÝ CUỘC THI =============================
+# Xem danh sách cuộc thi 
 @app.route("/admin/competitions")
 @login_required
 # @role_required(["superadmin, admin"])
@@ -687,6 +607,115 @@ def create_competition():
 
     return render_template("admin/create_competition.html")
 
+# danh sách thí sinh của một cuộc thi
+@app.route("/admin/competitions/<int:comp_id>/candidates")
+@login_required
+def manage_candidates(comp_id):
+    cur = mysql.connection.cursor()
+
+    # Check quyền admin
+    if session["admin_role"] != "superadmin":
+        cur.execute("SELECT created_by FROM competitions WHERE id=%s", (comp_id,))
+        owner = cur.fetchone()
+        if not owner or owner[0] != session["admin_id"]:
+            return "Bạn không có quyền!", 403
+
+    cur.execute("SELECT * FROM candidates WHERE competition_id=%s", (comp_id,))
+    candidates = cur.fetchall()
+    cur.close()
+
+    return render_template("admin/candidates.html", candidates=candidates, comp_id=comp_id)
+
+# Thêm thí sinh vào cuộc thi
+@app.route("/admin/competitions/<int:comp_id>/candidates/add", methods=["POST"])
+@login_required
+def add_candidate(comp_id):
+    data = request.json
+    full_name = data["full_name"]
+    rank = data["rank"]
+    position = data["position"]
+    unit = data["unit"]
+    username = data["username"]
+    password = data["password"]
+
+    pw_hash = generate_password_hash(password)
+
+    cur = mysql.connection.cursor()
+
+    # Check username trùng
+    cur.execute("SELECT id FROM candidates WHERE username=%s", (username,))
+    if cur.fetchone():
+        return {"status": "error", "message": "Tên đăng nhập đã tồn tại!"}
+
+    cur.execute("""
+        INSERT INTO candidates (name, `rank`, position, unit, username, password_hash, competition_id, created_by)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    """, (full_name, rank, position, unit, username, pw_hash, comp_id, session["admin_id"]))
+
+    mysql.connection.commit()
+    cur.close()
+
+    return {"status": "success", "message": "Thêm thí sinh thành công!"}
+
+# import danh sách thí sinh từ file excel
+@app.route("/admin/competitions/<int:comp_id>/candidates/import", methods=["POST"])
+@login_required
+def import_candidates(comp_id):
+    file = request.files.get('excel_file')
+    if not file:
+        return {"status": "error", "message": "Không có file Excel"}
+
+    import pandas as pd
+    df = pd.read_excel(file)
+
+    required = ["full_name", "rank", "position", "unit", "username", "password"]
+    if not all(col in df.columns for col in required):
+        return {"status": "error", "message": "File thiếu cột"}
+
+    cur = mysql.connection.cursor()
+
+    added = 0
+    skipped = 0
+    for _, row in df.iterrows():
+        cur.execute("SELECT id FROM candidates WHERE username=%s", (row["username"],))
+        if cur.fetchone():
+            skipped += 1
+            continue
+
+        pw_hash = generate_password_hash(str(row["password"]).strip())
+
+        cur.execute("""
+            INSERT INTO candidates (full_name, `rank`, position, unit, username, password_hash, competition_id, created_by)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            row["full_name"], row["rank"], row["position"], row["unit"],
+            row["username"], pw_hash, comp_id, session["admin_id"]
+        ))
+        added += 1
+
+    mysql.connection.commit()
+    cur.close()
+
+    return {
+        "status": "success",
+        "added": added,
+        "skipped": skipped,
+        "message": f"Thêm {added} thí sinh, bỏ qua {skipped} tài khoản trùng."
+    }
+
+# xóa thí sinh khỏi cuộc thi
+@app.route("/admin/candidates/delete", methods=["POST"])
+@login_required
+def delete_candidate():
+    cid = request.json.get("candidate_id")
+
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM candidates WHERE id=%s LIMIT 1", (cid,))
+    mysql.connection.commit()
+    cur.close()
+
+    return {"status": "success"}
+
 # Danh sách đề thi theo cuộc thi
 @app.route("/admin/competitions/<int:comp_id>/exams")
 @login_required
@@ -706,7 +735,7 @@ def competition_exams(comp_id):
 
     return render_template("admin/list_exams.html", exams=exams, comp_id=comp_id)
 
-# Tạo đề thi mới (on dashboard)
+# Tạo đề thi mới
 @app.route('/admin/competitions/<int:comp_id>/exams/add', methods=['GET', 'POST'])
 @login_required
 def admin_exams(comp_id):
@@ -788,16 +817,6 @@ def admin_exams(comp_id):
     cur.close()
     return render_template('admin/exams.html', questions=questions, exams=exams)
 
-# #xem danh sách đề thi (on dashboard)
-# @app.route('/admin/exams/list')
-# @login_required
-# def list_exams():
-#     cur = mysql.connection.cursor()
-#     cur.execute("SELECT id, title FROM exams")
-#     exams = cur.fetchall()
-#     cur.close()
-#     return render_template('admin/list_exams.html', exams=exams)
-
 #Thêm câu hỏi vào đề thi
 @app.route('/admin/competitions/<int:comp_id>/exams/<int:exam_id>/add_questions', methods=['GET', 'POST'])
 @login_required
@@ -872,15 +891,6 @@ def edit_exam(comp_id, exam_id):
     cur.close()
     return render_template('admin/edit_exam.html', exam=exam, comp_id=comp_id)
 
-# @app.route('/admin/exams/<int:exam_id>/update_question_score', method=['POST'])
-# def update_question_score(exam_id, question_id):
-#     cur = mysql.connection.cursor()
-#     cur.execute("SELECT q.duration_minutes FROM exams WHERE q.id = %s", (exam_id,))
-#     old_duration_minutes = cur.fetchall()
-#     if request.method == 'POST':
-#         flash('Đã cập nhật thay đổi trong đề thi!!!')
-#     return redirect(url_for('add_questions_to_exam', exam_id=exam_id, duration_minutes=old_duration_minutes))
-
 # Xem kết quả
 @app.route('/admin/competitions/<int:comp_id>/exam/<int:exam_id>/view_result')
 @login_required
@@ -948,7 +958,7 @@ def delete_exam(exam_id):
     flash('Đã xóa đề thi!', 'success')
     return redirect(url_for('competition_exams'))
 
-#Xem kết quả thi (on dashboard)
+#Xem kết quả thi
 @app.route('/admin/competitions/<int:comp_id>/results')
 @login_required
 def admin_results(comp_id):
@@ -970,6 +980,7 @@ def admin_results(comp_id):
     cur.close()
     return render_template('admin/results.html', results=results)
 
+# Xóa kết quả thi
 @app.route('/admin/results/delete/<int:submission_id>', methods=['POST'])
 @login_required
 def delete_result(submission_id):
@@ -980,6 +991,7 @@ def delete_result(submission_id):
     flash('Đã xóa kết quả thi!', 'success')
     return redirect(url_for('admin_results'))
 
+# Xóa tất cả kết quả thi
 @app.route('/admin/results/delete_all', methods=['POST'])
 @login_required
 def delete_all_results():
@@ -990,25 +1002,25 @@ def delete_all_results():
     flash('Đã xóa toàn bộ lịch sử thi!', 'success')
     return redirect(url_for('admin_results'))
 
-@app.route("/exam_list/<int:candidate_id>")
-@login_required
-def exam_list(candidate_id):
-    cur = mysql.connection.cursor()
-    # Lấy tên thí sinh
-    cur.execute("SELECT full_name FROM candidates WHERE id = %s", (candidate_id,))
-    candidate = cur.fetchone()
+# @app.route("/exam_list/<int:candidate_id>")
+# @login_required
+# def exam_list(candidate_id):
+#     cur = mysql.connection.cursor()
+#     # Lấy tên thí sinh
+#     cur.execute("SELECT full_name FROM candidates WHERE id = %s", (candidate_id,))
+#     candidate = cur.fetchone()
 
-    # Lấy danh sách đề thi
-    cur.execute("SELECT id, title FROM exams")
-    exams = cur.fetchall()
-    cur.close()
+#     # Lấy danh sách đề thi
+#     cur.execute("SELECT id, title FROM exams")
+#     exams = cur.fetchall()
+#     cur.close()
 
-    return render_template(
-        "exam_list.html",
-        candidate_name=candidate[0] if candidate else "",
-        candidate_id=candidate_id,
-        exams=exams
-    )
+#     return render_template(
+#         "exam_list.html",
+#         candidate_name=candidate[0] if candidate else "",
+#         candidate_id=candidate_id,
+#         exams=exams
+#     )
 
 # Xóa tất cả câu hỏi trong ngân hàng
 @app.route('/admin/questions/delete_all', methods=['POST'])
@@ -1020,7 +1032,8 @@ def delete_all_questions():
     cur.close()
     flash('Đã xóa toàn bộ câu hỏi!', 'success')
     return redirect(url_for('admin_questions'))
-    
+
+# xem chi tiết kết quả thi
 @app.route('/submission_detail/<int:submission_id>')
 @login_required
 def submission_detail(submission_id):
@@ -1061,6 +1074,7 @@ def submission_detail(submission_id):
                            submission=submission,
                            answers=answers)
 
+# Xuất kết quả thi ra file excel
 @app.route('/submission_detail/<int:submission_id>/export_excel')
 @login_required
 def export_submission_excel(submission_id):
@@ -1130,30 +1144,6 @@ def export_submission_excel(submission_id):
         download_name=f"ket_qua_bai_thi_{submission_id}.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-# Danh sách câu hỏi
-@app.route('/question_list')
-@login_required
-def question_list():
-    keyword = request.args.get('keyword', '').strip()
-    cur = mysql.connection.cursor()
-
-    if keyword:
-        sql = """
-            SELECT * FROM questions
-            WHERE content LIKE %s
-            OR option_a LIKE %s
-            OR option_b LIKE %s
-            OR option_c LIKE %s
-            OR option_d LIKE %s
-        """
-        like = f"%{keyword}%"
-        cur.execute(sql, (like, like, like, like, like))
-    else:
-        cur.execute("SELECT * FROM questions")
-
-    questions = cur.fetchall()
-    cur.close()
-    return render_template('admin/questions.html', questions=questions, keyword=keyword)
 
 # Xóa tất cả đề thi
 @app.route('/admin/exams/delete_all', methods=['POST'])

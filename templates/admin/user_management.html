@@ -128,16 +128,10 @@
             <h3 id="unitTitle">Chọn đơn vị để xem tài khoản</h3>
 
             <div>
-                <a href="{{ url_for('create_user') }}" 
+                <a href="{{ url_for('admins_bp.create_user') }}" 
                    class="btn btn-warning"
                    style="margin-right:10px; font-weight:bold;">
                     ➕ Tạo tài khoản quản trị
-                </a>
-
-                <a href="{{ url_for('create_user') }}"
-                   class="btn btn-success"
-                   style="font-weight:bold;">
-                    ➕ Tạo tài khoản người dùng
                 </a>
             </div>
         </div>
@@ -161,7 +155,7 @@
 
     </div>
 </div>
-<br><a href="{{ url_for('admin_dashboard') }}" style="color:red">← Quay lại Trang quản trị</a>
+<br><a href="{{ url_for('dashboard_bp.admin_dashboard') }}" style="color:red">← Quay lại Trang quản trị</a>
 
 <!-- ====================== MODAL TẠO ĐƠN VỊ ====================== -->
 <div id="unitModal"

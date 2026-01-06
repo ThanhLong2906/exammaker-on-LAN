@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập Quản trị</title>
+    <title>Đăng nhập thí sinh</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_login.css') }}">
     <style>
       /* Toàn bộ màn hình nền */
@@ -203,17 +203,17 @@
         </div>
     </header>
     <div class="scrolling-text">
-    🔒 Chào mừng bạn đến với hệ thống quản trị! Vui lòng đăng nhập để tiếp tục. 🔑
+    🔒 Chào mừng bạn đến với hệ thống thi trắc nghiệm! Vui lòng đăng nhập để tiếp tục. 🔑
     </div>
     <div class="login-container">
         <div class="login-box">
-            <h2 class="animated-title">Đăng nhập Quản trị</h2>
+            <h2 class="animated-title">Đăng nhập thí sinh</h2>
 
             {% if error %}
                 <div class="error">{{ error }}</div>
             {% endif %}
 
-            <form method="POST" action="{{ url_for('auth_bp.admin_login') }}">
+            <form method="POST" action="{{ url_for('auth_bp.candidate_login') }}">
                 <input type="text" name="username" placeholder="Tên đăng nhập" required>
                 <input type="password" name="password" placeholder="Mật khẩu" required>
                 <button  type="submit" >Đăng nhập</button>

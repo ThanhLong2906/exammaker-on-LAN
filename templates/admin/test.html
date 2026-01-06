@@ -19,7 +19,7 @@
         Thời gian còn lại: <span id="timer">--:--</span>
     </div>
 
-    <form id="examForm" method="POST" action="{{ url_for('submit_exam') }}">
+    <form id="examForm" method="POST" action="{{ url_for('competitions_bp.submit_exam') }}">
         <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
         <input type="hidden" name="exam_id" value="{{ exam_id }}">
 

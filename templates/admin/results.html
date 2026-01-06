@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Kết quả thi</title>
+        <meta http-equiv="refresh" content="3">
         <style>
             /* Giữ background, header, footer y hệt trang thêm câu hỏi */
             body {
@@ -133,16 +134,16 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="results-body">
                     {% for r in results %}
-                    <tr>
+                    <tr data-id="{{ r.id }}">
                         <td>{{ r.name }} ({{ r.rank }} - {{ r.unit }})</td>
                         <td>{{ r.exam_title }}</td>
                         <td>{{ r.submitted_at }}</td>
                         <td>{{ r.score }}</td>
                         <td>
                         <!-- Nút Chi tiết -->
-                        <form action="{{ url_for('submission_detail', submission_id=r.id) }}" method="GET" style="display:inline;">
+                        <form action="{{ url_for('competitions_bp.submission_detail', submission_id=r.id) }}" method="GET" style="display:inline;">
                             <button type="submit"
                                     style="background-color:rgb(28, 248, 86); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                                 Chi tiết
@@ -150,7 +151,7 @@
                         </form>
 
                         <!-- Nút Xóa -->
-                        <form action="{{ url_for('delete_result', submission_id=r.id) }}" method="POST" style="display:inline;">
+                        <form action="{{ url_for('competitions_bp.delete_result', comp_id=comp_id, submission_id=r.id) }}" method="POST" style="display:inline;">
                             <button type="submit"
                                     onclick="return confirm('Bạn có chắc chắn muốn xóa kết quả này?');"
                                     style="background-color:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
@@ -164,7 +165,7 @@
                 </tbody>
             </table>
             <br>
-            <form action="{{ url_for('delete_all_results') }}" method="POST" style="display:inline;">      
+            <form action="{{ url_for('competitions_bp.delete_all_results', comp_id=comp_id) }}" method="POST" style="display:inline;">      
                 <button type="submit"
                         onclick="return confirm('Bạn có chắc chắn muốn xóa HẾT kết quả thi không?');"
                         style="background-color:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
@@ -174,15 +175,21 @@
             {% else %}
                 <p><i>Chưa có thí sinh dự thi.</i></p>
             {% endif %}
-            <a href="{{ url_for('competition_exam') }}" class="back-link">
+            <a href="{{ url_for('competitions_bp.competition_exams', comp_id=comp_id) }}" class="back-link">
                 <button type="submit"
                         style="background-color:rgb(28, 248, 86); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                     ← Quay lại Trang quản trị
                 </button>
             </a>
-            <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+            <a href="{{ url_for('competitions_bp.competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
         </main>
 
         <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
+        <script>
+            setInterval(function () {
+                window.location.reload();
+            }, 3000); // 3000 ms = 3 giây
+        </script>
+
     </body>
 </html>

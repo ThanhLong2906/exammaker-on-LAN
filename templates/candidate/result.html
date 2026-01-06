@@ -147,26 +147,9 @@
     </div>
     {% endfor %}
 </main>
-    <!-- <form class="back-button">
-        <div style="text-align: center; margin-top: 5px;">
-            <a href="{{ url_for('register_candidate', candidate_id=candidate_id) }}" 
-            style="display: inline-block;
-                    background: linear-gradient(135deg, #fa9494, #2aec4e);
-                    color: #ffffff;
-                    padding: 12px 28px;
-                    border-radius: 30px;
-                    text-decoration: none;
-                    font-weight: bold;
-                    font-size: 16px;
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-                    transition: all 0.3s ease;">
-                ⬅ Quay về trang danh sách đề thi
-            </a>
-        </div>
-    </form> -->
     <script>
           // Hiệu ứng hover
-            const backBtn = document.querySelector("a[href='{{ url_for('index') }}']");
+            const backBtn = document.querySelector("a[href='{{ url_for('candidates_bp.dashboard') }}']");
             backBtn.addEventListener("mouseenter", () => {
                 backBtn.style.transform = "translateY(-2px)";
             });

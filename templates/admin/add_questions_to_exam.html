@@ -173,9 +173,9 @@
 <main>
     <h2>Đề thi: {{ exam[1] }}</h2>
 
-    <form method="POST" action="{{ url_for('update_time', exam_id = exam[0]) }}" class="update-time-form">
+    <form method="POST" action="{{ url_for('competitions_bp.update_time',comp_id = comp_id, exam_id = exam['id']) }}" class="update-time-form">
         <label for="duration_minutes">Thời gian:</label>
-        <input type="number" id="duration_minutes" value="{{ exam[2] }}" name="duration_minutes" min="1" required> phút
+        <input type="number" id="duration_minutes" value="{{ exam['duration_minutes'] }}" name="duration_minutes" min="1" required> phút
         <button type="submit" title="Lưu thời gian">💾</button>
     </form>
 
@@ -191,10 +191,10 @@
     <form method="POST">
         {% for question in questions %}
             <div class="question-row">
-                <input type="checkbox" name="question_ids" value="{{ question[0] }}" id="q{{ question[0] }}">
-                <label class="question-label" for="q{{ question[0] }}">{{ question[1] }}</label>
+                <input type="checkbox" name="question_ids" value="{{ question['id'] }}" id="q{{ question['id'] }}">
+                <label class="question-label" for="q{{ question['id'] }}">{{ question['content'] }}</label>
                 <label>Điểm:</label>
-                <input class="score-input" type="number" name="scores" min="1" max="100" value="1" required>
+                <input class="score-input" type="number" name="score_{{ question['id'] }}" min="1" max="100" value="1" required>
             </div>
         {% endfor %}
         <button type="submit">Thêm vào đề thi</button>
@@ -209,13 +209,13 @@
       {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{url_for('update_assigned_questions', exam_id = exam[0])}}">
+    <form method="POST" action="{{url_for('competitions_bp.update_assigned_questions', comp_id = comp_id, exam_id = exam['id'])}}">
         {% for question in assigned_questions %}
             <div class="question-row">
-                <label class="question-label" for="q{{ question[0] }}">{{ question[1] }}</label>
+                <label class="question-label" for="q{{ question['id'] }}">{{ question['content'] }}</label>
                 <label>Điểm:</label>
-                <input class="score-input" type="number" name="score_{{ question[0] }}" min="1" max="100" value="{{ question[2] }}" required>
-                <a href="{{ url_for('remove_question_from_exam', exam_id=exam[0], question_id=question[0]) }}" 
+                <input class="score-input" type="number" name="score_{{ question['id'] }}" min="1" max="100" value="{{ question['score'] }}" required>
+                <a href="{{ url_for('competitions_bp.remove_question_from_exam', comp_id = comp_id, exam_id=exam['id'], question_id=question['id']) }}" 
                    class="remove-link"
                    onclick="return confirm('Bạn có chắc muốn xóa câu hỏi này khỏi đề thi?')">
                     Xóa
@@ -227,7 +227,7 @@
 
     <hr>
 
-    <a href="{{ url_for('competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
+    <a href="{{ url_for('competitions_bp.competition_exams', comp_id=comp_id) }}" class="back-link">← Quay lại danh sách đề thi</a>
 </main>
 
 <footer>
