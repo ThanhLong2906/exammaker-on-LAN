@@ -264,6 +264,13 @@
                     </div>
                 </div>
             </div>
+        
+        <div id="violationModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+            <div style=" background:#fff; color:#000; padding:20px 30px; border-radius:8px; text-align:center; max-width:400px; font-weight:bold;">
+                <p id="violationText"></p>
+                <button onclick="closeViolationModal()">OK</button>
+            </div>
+        </div>
         </main>
 
         <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
@@ -337,8 +344,77 @@
                 });
             });
 
+        //========= Chống gian lận =================
+        
+        let violationCount = 0;
+        let handlingViolation = false;
+        const MAX_VIOLATIONS = 3;
 
+            // ép fullscreen 
+            // function requestFullscreen() {
+            // const el = document.documentElement;
+            // if (el.requestFullscreen) el.requestFullscreen();
+            // }
+
+            // document.addEventListener("fullscreenchange", function () {
+            //     if (!document.fullscreenElement) {
+            //         handleViolation("Thoát chế độ toàn màn hình");
+            //     }
+            // });
+
+            // Xử lý vi phạm 
+        function handleViolation(reason) {
+            if (handlingViolation) return; // ⛔ chặn lặp
+                handlingViolation = true;
+                violationCount++;
+
+            if (violationCount >= MAX_VIOLATIONS) {
+                showMessage(
+                    "❌ Bạn đã vi phạm quá số lần cho phép.\nBài thi sẽ được nộp!",
+                    true
+                );
+                setTimeout(autoSubmitExam, 1500);
+                return;
+            }
+            showMessage(
+                `⚠ Vi phạm ${violationCount}/${MAX_VIOLATIONS}\nKhông được rời màn hình thi!`,
+                false
+            );
+
+            setTimeout(() => {
+                handlingViolation = false;
+            }, 1000);
+        }
+
+        // Tự động nộp bài
+        function autoSubmitExam() {
+            document.getElementById("examForm").submit();
+        }
+
+        // Điều khiển modal 
+        function showMessage(text, lock) {
+            const modal = document.getElementById("violationModal");
+            document.getElementById("violationText").innerText = text;
+            modal.style.display = "flex";
+
+            if (lock) return; // không cho đóng
+        }
+
+        function closeViolationModal() {
+            document.getElementById("violationModal").style.display = "none";
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                handleViolation("tab_change");
+                console.log("ViolationCount: ", violationCount);
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            handleViolation("window_blur");
+            console.log("ViolationCount: ", violationCount);
+        });
         </script>
-
     </body>
 </html>

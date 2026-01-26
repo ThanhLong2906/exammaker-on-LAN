@@ -204,7 +204,7 @@
                     
                     <form method="POST" action="{{ url_for('candidates_bp.do_exam', comp_id=c['competition_id']) }}">
                         <!-- <input type="hidden" name="candidate_id" value="{{ candidate_id }}"> -->
-                        <button type="submit">Làm bài</button>
+                        <button type="submit" class="start-exam-btn">Làm bài</button>
                     </form>
                 </div>
             {% endfor %}
@@ -234,6 +234,7 @@
             setTimeout(() => wrapper.remove(), 800)
         }
     }, 3000);
+    
     </script>
 
 </body>

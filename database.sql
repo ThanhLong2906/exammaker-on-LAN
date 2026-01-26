@@ -175,3 +175,15 @@ CREATE TABLE exam_assignments (
 -- thêm ràng buộc 1 thí sinh - 1 đề
 ALTER TABLE exam_assignments
 ADD UNIQUE KEY uq_candidate_contest (exam_id, candidate_id);
+
+-- thêm ràng buộc thí sinh - cuộc thi
+ALTER TABLE exam_system.exam_assignments
+ADD UNIQUE KEY uniq_candidate_competition (candidate_id, competition_id);
+
+-- Bảng vi phạm
+CREATE TABLE exam_violations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT,
+    reason VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

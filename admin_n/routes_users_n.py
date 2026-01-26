@@ -1,5 +1,5 @@
 # exam_system/server/app.py
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime
 from extensions_n import mysql
 from utils_n.decorators_n import candidate_login_required
@@ -133,3 +133,19 @@ def submit_exam(comp_id):
     cur.close()
 
     return render_template('candidate/result.html', score=round(correct_t,2), total= total, candidate_name = candidate_name, candidate_id=candidate_id, questions=question_details)
+
+# Nhận vi phạm
+@candidates_bp.route("/candidate/violation", methods=["POST"])
+def candidate_violation():
+    data = request.get_json()
+    reason = data.get("reason")
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO exam_violations (candidate_id, reason)
+        VALUES (%s, %s)
+    """, (session["candidate_id"], reason))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({"status": "ok"})

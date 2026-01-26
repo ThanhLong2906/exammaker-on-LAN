@@ -147,17 +147,22 @@
     </div>
     {% endfor %}
 </main>
-    <script>
-          // Hiệu ứng hover
-            const backBtn = document.querySelector("a[href='{{ url_for('candidates_bp.dashboard') }}']");
-            backBtn.addEventListener("mouseenter", () => {
-                backBtn.style.transform = "translateY(-2px)";
-            });
-            backBtn.addEventListener("mouseleave", () => {
-                backBtn.style.transform = "translateY(0)";
-            });
-  
-    </script>
+<script>
+    // Hiệu ứng hover
+    const backBtn = document.querySelector("a[href='{{ url_for('candidates_bp.dashboard') }}']");
+    backBtn.addEventListener("mouseenter", () => {
+        backBtn.style.transform = "translateY(-2px)";
+    });
+    backBtn.addEventListener("mouseleave", () => {
+        backBtn.style.transform = "translateY(0)";
+    });
+    // Thay thế entry hiện tại trong history
+    history.replaceState(null, "", location.href)
+    // ép nút back quay về dashboard
+    window.onpopstate = function () {
+        window.location.href = "{{ url_for('candidates_bp.dashboard') }}";
+    };
+</script>
 
 
 <footer>© Hệ thống thi trắc nghiệm - Bản quyền phần mềm thuộc về Ban Thông tin - Phòng Tham mưu - Sư đoàn 395.</footer>
